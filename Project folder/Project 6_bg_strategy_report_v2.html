@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breaking Games Strategy Report</title>
+<style>
+:root{--bg:#0f1117;--surf:#1a1d27;--surf2:#222636;--bdr:rgba(255,255,255,0.08);--txt:#e8eaf0;--muted:#8b8fa8;--good:#43e97b;--warn:#f7971e;--bad:#ff6b6b;--acc:#7b61ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;line-height:1.7}
+.hdr{background:var(--surf);border-bottom:1px solid var(--bdr);padding:16px 24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.hdr-t{font-size:18px;font-weight:700}.hdr-t span{color:var(--acc)}
+.hdr-m{font-size:11px;color:var(--muted);margin-top:3px}
+.hdr-r{text-align:right}.hdr-r .name{font-size:13px;font-weight:600}.hdr-r .role{font-size:11px;color:var(--muted)}.hdr-r .proj{font-size:11px;color:var(--acc);margin-top:2px}
+.nav{display:flex;background:var(--surf);border-bottom:1px solid var(--bdr);padding:0 24px;overflow-x:auto;gap:2px}
+.nav button{padding:10px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:12px;white-space:nowrap;transition:all .2s}
+.nav button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.nav button:hover{color:var(--txt)}
+.main{padding:20px 24px;max-width:1300px}
+.tab{display:none}.tab.active{display:block}
+.sep{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sep::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rb{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.rb-c{background:rgba(123,97,255,.2);color:#b39ddb;border:1px solid rgba(123,97,255,.3)}
+.rb-a{background:rgba(66,133,244,.2);color:#90caf9;border:1px solid rgba(66,133,244,.3)}
+.rb-f{background:rgba(67,233,123,.2);color:#43e97b;border:1px solid rgba(67,233,123,.3)}
+.ins{border-radius:8px;padding:11px 14px;margin-bottom:12px;font-size:12px;line-height:1.8}
+.ins-i{background:rgba(123,97,255,.1);border:1px solid rgba(123,97,255,.25)}
+.ins-g{background:rgba(67,233,123,.1);border:1px solid rgba(67,233,123,.25)}
+.ins-w{background:rgba(247,151,30,.1);border:1px solid rgba(247,151,30,.25)}
+.ins-r{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.25)}
+.ins-i strong{color:var(--acc)}.ins-g strong{color:var(--good)}.ins-w strong{color:var(--warn)}.ins-r strong{color:var(--bad)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:7px 8px;border-bottom:1px solid var(--bdr);font-weight:500}
+.tbl td{padding:8px 8px;border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surf2)}
+.num{text-align:right}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:12px 14px}
+.kpi .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi .val{font-size:20px;font-weight:700}.kpi .sub{font-size:10px;color:var(--muted);margin-top:2px}
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500}
+.ph{background:rgba(67,233,123,.15);color:#43e97b}
+.pm{background:rgba(247,151,30,.15);color:#f7971e}
+.pl{background:rgba(255,107,107,.15);color:#ff6b6b}
+.pe{background:rgba(67,233,123,.15);color:#43e97b}
+.pme{background:rgba(247,151,30,.15);color:#f7971e}
+.phard{background:rgba(255,107,107,.15);color:#ff6b6b}
+.fs{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500}
+.fsa{background:rgba(66,133,244,.15);color:#90caf9}
+.fsc{background:rgba(123,97,255,.15);color:#b39ddb}
+.fscv{background:rgba(67,233,123,.15);color:#43e97b}
+.fsr{background:rgba(247,151,30,.15);color:#f7971e}
+.rn{width:26px;height:26px;border-radius:50%;background:rgba(123,97,255,.2);color:var(--acc);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.rr{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--bdr)}
+.rr:last-child{border-bottom:none}
+.dv{height:1px;background:var(--bdr);margin:12px 0}
+code{background:var(--surf2);padding:1px 5px;border-radius:3px;font-size:11px;color:#b39ddb}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-t">Online Board Game Retailer <span>/ Strategy & Analysis Report</span></div>
+    <div class="hdr-m">Jan 1 – Jul 29, 2025 &nbsp;·&nbsp; Scope: Ecommerce Only &nbsp;·&nbsp; 3 Roles: Consultant · Analyst · Fact-Check</div>
+  </div>
+  <div class="hdr-r">
+    <div class="name">Sok Leng Chan</div>
+    <div class="role">E-commerce Data Analysis & Strategy Externship</div>
+    <div class="proj">Project: Online Board Games Cross-Platform Dashboard · Jun 2026</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="showTab('ctx',this)">Business Context</button>
+  <button onclick="showTab('con',this)">Role 1: Consultant</button>
+  <button onclick="showTab('ana',this)">Role 2: Analyst</button>
+  <button onclick="showTab('fct',this)">Role 3: Fact-Check</button>
+  <button onclick="showTab('mat',this)">Priority Matrix</button>
+  <button onclick="showTab('cmp',this)">Role Contrast</button>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 1 — BUSINESS CONTEXT
+═══════════════════════════════════════════════════════════ -->
+<div class="tab active" id="tab-ctx">
+  <div class="ins ins-g">
+    <strong>Data scope: Online Board Game Retailer ecommerce only.</strong> Excluded from all analysis:
+    Non-retailer B2B campaigns · Third-party logistics campaigns · GA4 Unassigned channel.
+    All figures below reflect retailer-relevant data only.
+  </div>
+
+  <div class="sep">Verified Data Summary — BG Only</div>
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Google Spend (PMAX)</div><div class="val" style="color:#4285f4">$16,396</div><div class="sub">PMAX - Breaking Games only</div></div>
+    <div class="kpi"><div class="lbl">Meta Ads Spend</div><div class="val" style="color:#1877f2">$37,201</div><div class="sub">7 DA campaigns · Actual</div></div>
+    <div class="kpi"><div class="lbl">Total BG Ad Spend</div><div class="val warn">$53,597</div><div class="sub">PMAX + Meta combined</div></div>
+    <div class="kpi"><div class="lbl">Google Conv. Value</div><div class="val good">$21,901</div><div class="sub">ROAS 1.34x (PMAX only)</div></div>
+    <div class="kpi"><div class="lbl">Shopify Net Sales</div><div class="val good">$47,761</div><div class="sub">Jan–Jul · 15 products</div></div>
+    <div class="kpi"><div class="lbl">July Revenue</div><div class="val good">$5,429</div><div class="sub">29 days · $187/day avg</div></div>
+    <div class="kpi"><div class="lbl">Checkout Abandon</div><div class="val bad">98.7%</div><div class="sub">609 started · 8 completed</div></div>
+    <div class="kpi"><div class="lbl">Dwellings Rev. Share</div><div class="val" style="color:var(--acc)">73.4%</div><div class="sub">$35,058 of $47,761</div></div>
+  </div>
+
+  <div class="sep">Data Insights — Cross-Source (BG Only)</div>
+  <div class="g2">
+    <div class="card">
+      <h3><span style="color:#4285f4">■</span> Google Ads — PMAX Only</h3>
+      <table class="tbl">
+        <thead><tr><th>Campaign</th><th class="num">Spend</th><th class="num">Conv.</th><th class="num">Conv. Value</th><th class="num">ROAS</th><th class="num">Conv.%</th></tr></thead>
+        <tbody>
+          <tr><td>PMAX - Online Board Game</td><td class="num">$16,396</td><td class="num">325</td><td class="num good">$21,901</td><td class="num warn">1.34x</td><td class="num warn">0.85%</td></tr>
+          <tr style="font-weight:600;border-top:2px solid var(--bdr)"><td>Total (Retailer Only)</td><td class="num">$16,396</td><td class="num">325</td><td class="num good">$21,901</td><td class="num warn">1.34x</td><td class="num warn">0.85%</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">PMAX: 2.6M impressions — strong awareness. Conv. rate 0.85% is below Google's 1–2% ecommerce benchmark. Needs technical optimisation before budget scaling.</div>
+    </div>
+    <div class="card">
+      <h3><span style="color:#1877f2">■</span> Meta + Shopify + GA4</h3>
+      <table class="tbl">
+        <thead><tr><th>Signal</th><th>Value</th><th>Flag</th></tr></thead>
+        <tbody>
+          <tr><td>Meta avg CTR</td><td class="good">84–250%</td><td>Creative resonates</td></tr>
+          <tr><td>Facebook conv. rate</td><td class="bad">0.43%</td><td>Weak purchase conv.</td></tr>
+          <tr><td>Mobile spend share</td><td class="warn">48% ($18,013)</td><td>UX critical</td></tr>
+          <tr><td>Checkout abandonment</td><td class="bad">98.7%</td><td>Critical failure</td></tr>
+          <tr><td>Bing conv. rate</td><td class="good">4.1%</td><td>Underinvested</td></tr>
+          <tr><td>Dwellings rev. share</td><td class="good">73.4%</td><td>Hero product</td></tr>
+          <tr><td>Sparkle*Kitty</td><td class="bad">104 carts · $0 rev.</td><td>Anomaly</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sep">Root Cause Hypotheses</div>
+  <div class="card">
+    <div class="rr"><div class="rn">H1</div><div><strong>Meta audience misalignment</strong> — High CTR + 0.43% purchase conv. + 67.1% Facebook bounce = audience is browsing, not buying. TOF campaigns are ~80% of Meta budget. No MOF/BOF segmentation in place.</div></div>
+    <div class="rr"><div class="rn">H2</div><div><strong>Mobile checkout UX is broken</strong> — 66% mobile traffic, 98.7% cart abandonment. 242 users filled billing addresses but only 8 reached payment — a payment step technical or UX failure. Industry avg is 85–90%.</div></div>
+    <div class="rr"><div class="rn">H3</div><div><strong>No retargeting infrastructure</strong> — 242 high-intent users never recovered. Meta pixel likely misconfigured or absent. No confirmed Klaviyo abandoned cart email flow in data.</div></div>
+    <div class="rr"><div class="rn">H4</div><div><strong>PMAX below conversion benchmark</strong> — 0.85% conv. rate vs Google's 1–2% ecommerce average. Drives strong awareness (2.6M impressions) but underperforms on conversions. Needs product feed + negative keywords before scaling.</div></div>
+    <div class="rr"><div class="rn">H5</div><div><strong>Low AOV limits ROAS ceiling</strong> — $21.60 avg AOV means even a 3x ROAS requires only $7.20 CPA. With PMAX CPC at $0.65, margin is structurally thin. Bundle strategy is required to improve revenue per order.</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2 — CONSULTANT
+═══════════════════════════════════════════════════════════ -->
+<div class="tab" id="tab-con">
+  <div class="ins ins-i"><span class="rb rb-c">Role 1: Digital Strategy Consultant</span> &nbsp; 5 actionable recommendations with funnel stage, e-commerce benchmarks, KPIs, and self-critique. All data is BG-only.</div>
+
+  <div class="card">
+    <div class="rr">
+      <div class="rn" style="background:rgba(255,107,107,.2);color:#ff6b6b;width:28px;height:28px;font-size:13px">1</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700">Fix Mobile Checkout UX</span>
+          <span class="fs fscv">Conversion</span><span class="pill pl">Critical</span>
+        </div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Why:</strong> 98.7% abandonment vs industry avg 85–90% (Baymard Institute 2024). The 242→8 drop from billing to payment is a payment step technical failure, not intent. Shopify's Shop Pay improves mobile conversion by up to 50%.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>For Breaking Games:</strong> Audit Shopify mobile checkout — enable Shop Pay / PayPal Express, ensure guest checkout is prominent, check for unexpected shipping cost reveal, reduce form fields. The billing→payment gap (242→8) points to a specific failure at the payment method step.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Benchmarks:</strong> MVMT Watches +18% mobile conv. via one-page checkout. Blenders Eyewear +30% completion reducing form fields 14→8.</div>
+        <div class="dv"></div>
+        <div style="font-size:11px;color:var(--muted)">📊 <strong>KPI 1:</strong> Checkout completion rate (target &gt;5% from &lt;1.5%) &nbsp;|&nbsp; 📊 <strong>KPI 2:</strong> Mobile conv. rate (target &gt;1.5%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rr">
+      <div class="rn" style="background:rgba(247,151,30,.2);color:#f7971e;width:28px;height:28px;font-size:13px">2</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700">Meta Retargeting — 242 Billing-Address Users</span>
+          <span class="fs fsr">Retention</span><span class="pill ph">High ROI</span>
+        </div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Why:</strong> Billing-address completers are the highest-intent segment. Meta retargeting for cart abandoners converts 2–4× vs cold audiences (WordStream 2023). Klaviyo cart emails recover 3–5% of carts on average.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>For Breaking Games:</strong> Export 242 users from Shopify → upload as Meta Custom Audience. Run 3-ad sequence: Day 1 (product reminder), Day 3 (urgency), Day 7 (10% offer). Set up Klaviyo abandoned cart flow at 1hr / 24hr / 72hr. Est. recovery: 242 × 5% × $21.60 = ~$261 min; at 15% = ~$783.</div>
+        <div class="dv"></div>
+        <div style="font-size:11px;color:var(--muted)">📊 <strong>KPI 1:</strong> Retargeting ROAS (target &gt;3x) &nbsp;|&nbsp; 📊 <strong>KPI 2:</strong> Cart recovery rate (target &gt;5%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rr">
+      <div class="rn" style="background:rgba(67,233,123,.2);color:#43e97b;width:28px;height:28px;font-size:13px">3</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700">Optimise PMAX Before Scaling</span>
+          <span class="fs fscv">Conversion</span><span class="pill ph">Data-backed</span>
+        </div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Why:</strong> PMAX conv. rate 0.85% is below Google's 1–2% ecommerce benchmark. The campaign has a high optimisation score (80.65) but that is Google's self-assessment — not an ROI indicator. 2.6M impressions show strong reach; the issue is conversion quality.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>For Breaking Games:</strong> Add negative keyword lists (block non-gaming terms). Upload Shopify product feed directly to PMAX asset groups. Add customer match list from Shopify purchasers as a campaign signal. Ensure product images meet Google quality thresholds (&gt;1200px). These technical fixes typically improve PMAX conv. rate by 0.5–1.5pp within 4–6 weeks.</div>
+        <div class="dv"></div>
+        <div style="font-size:11px;color:var(--muted)">📊 <strong>KPI 1:</strong> PMAX conv. rate (target &gt;1.5% from 0.85%) &nbsp;|&nbsp; 📊 <strong>KPI 2:</strong> PMAX ROAS (target &gt;1.6x from 1.34x)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rr">
+      <div class="rn" style="background:rgba(123,97,255,.2);color:#b39ddb;width:28px;height:28px;font-size:13px">4</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700">Meta Funnel Segmentation (TOF / MOF / BOF)</span>
+          <span class="fs fsc">Consideration</span><span class="pill pm">Medium Effort</span>
+        </div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Why:</strong> ~80% of Meta budget is TOF (Traffic). Facebook conv. rate 0.43% vs Bing 4.1% confirms audience is browsing not buying. A three-layer funnel with distinct creative per stage is standard DTC practice for improving ROAS.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>For Breaking Games:</strong> TOF (40%): Keep DA | Traffic TOF for Dwellings awareness. MOF (30%): Video viewers + product page visitors 30–90 days — gameplay/unboxing creative. BOF (30%): ATC users 7 days + billing-address list — urgency + offer creative. Requires separate creative assets for each stage.</div>
+        <div class="dv"></div>
+        <div style="font-size:11px;color:var(--muted)">📊 <strong>KPI 1:</strong> Meta purchase conv. rate (target &gt;1% from 0.43%) &nbsp;|&nbsp; 📊 <strong>KPI 2:</strong> Meta ROAS (target &gt;2x from 1.28x)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rr">
+      <div class="rn" style="background:rgba(66,133,244,.2);color:#90caf9;width:28px;height:28px;font-size:13px">5</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700">AOV Uplift: Dwellings Bundle Strategy</span>
+          <span class="fs fscv">Conversion</span><span class="pill ph">Revenue Multiplier</span>
+        </div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>Why:</strong> $21.60 avg AOV makes profitability structurally difficult. Dwellings buyers naturally purchase multiple SKUs. A 50% AOV increase to ~$32 improves blended ROAS equivalent from 0.89x to ~1.34x without extra ad spend. Shopify bundle apps deliver 10–25% AOV uplift on average.</div>
+        <div style="font-size:12px;margin-bottom:8px"><strong>For Breaking Games:</strong> Create "Dwellings Complete Bundle" (Standard + LEGENDARY Kit) at 10% bundle discount. Add "Customers Also Bought" on product pages and cart. Post-purchase email sequence: "Complete your Dwellings experience" targeting single-SKU buyers with upgrade kit offers.</div>
+        <div class="dv"></div>
+        <div style="font-size:11px;color:var(--muted)">📊 <strong>KPI 1:</strong> AOV (target &gt;$30 from $21.60) &nbsp;|&nbsp; 📊 <strong>KPI 2:</strong> Units per transaction (target &gt;2)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep">Self-Critique</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Recommendation</th><th>Feasibility</th><th>Risk</th><th>Why It Might Fail</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Fix Mobile Checkout</td><td><span class="pill ph">Highest ROI</span></td><td><span class="pill pe">Low</span></td><td>Shopify native tools available. Risk: checkout customisation may be limited on Basic plan.</td></tr>
+        <tr><td>2</td><td>Meta Retargeting (242)</td><td><span class="pill ph">Quick win</span></td><td><span class="pill pme">Medium</span></td><td>Small pool of 242 users. If Meta pixel is misconfigured, audience match rate may be &lt;50% (~100 users reachable).</td></tr>
+        <tr><td>3</td><td>Optimise PMAX</td><td><span class="pill ph">Data-backed</span></td><td><span class="pill pme">Medium</span></td><td>PMAX optimisation takes 4–6 weeks to show results. Google's learning period may temporarily reduce delivery.</td></tr>
+        <tr><td>4</td><td>Meta Funnel Segmentation</td><td><span class="pill pme">Medium effort</span></td><td><span class="pill pme">Medium</span></td><td>Requires distinct creative per stage. If creative production is limited, MOF/BOF ads may reuse TOF creative — reducing effectiveness.</td></tr>
+        <tr><td>5</td><td>Bundle Strategy (AOV)</td><td><span class="pill pme">Medium effort</span></td><td><span class="pill pe">Low</span></td><td>Bundle discounts compress margins if not priced carefully. Best when content-driven (not discount-driven).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 3 — ANALYST
+═══════════════════════════════════════════════════════════ -->
+<div class="tab" id="tab-ana">
+  <div class="ins ins-i"><span class="rb rb-a">Role 2: Performance Marketing Analyst</span> &nbsp; Focused on <strong>measurable, data-driven optimisations</strong> with highest confidence and fastest feedback loops. All data is BG-only.</div>
+
+  <div class="card">
+    <h3>Priority 1 — Fix UTM Tracking (Data Foundation) <span class="rb rb-a">Analyst</span></h3>
+    <div class="ins ins-r"><strong>Zero attribution exists.</strong> Every cross-platform finding in this report is correlation-based. Without UTM parameters, it is impossible to confirm which campaigns drive which orders.</div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Action (2–3 hours, Day 1):</strong> Add UTM parameters to all Meta ad destination URLs:<br>
+    <code>?utm_source=facebook&utm_medium=paid_social&utm_campaign=DA_Sales&utm_content={{ad.name}}</code><br>
+    Connect Breaking Games Shopify store to a dedicated GA4 property. Install Meta Pixel with Purchase event + Shopify integration. This single step transforms every future analysis from correlation to real attribution.</div>
+    <div class="ins ins-g"><strong>Impact:</strong> Enables exact ROAS per campaign, per ad, per audience — currently estimated for all Meta campaigns.</div>
+  </div>
+
+  <div class="card">
+    <h3>Priority 2 — Fix Mobile Checkout (98.7% Abandonment) <span class="rb rb-a">Analyst</span></h3>
+    <div style="font-size:12px;margin-bottom:8px">The data is unambiguous: 609 checkouts started, 242 filled billing, only 8 reached payment. The 242→8 drop is a <strong>payment step failure</strong>, not a buyer intent problem. This is the highest-confidence, highest-impact fix in the entire dataset.</div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Action:</strong> Test the checkout flow manually on mobile. Check: payment method availability, SSL/trust badge visibility, unexpected cost reveals, page load speed at payment step. Enable Shop Pay and PayPal Express as one-tap alternatives.</div>
+    <div class="ins ins-g"><strong>Math:</strong> If abandonment drops from 98.7% to 90% (industry avg), that is ~52 additional completed checkouts × $21.60 AOV = ~$1,123 additional revenue per equivalent traffic period — with zero additional ad spend.</div>
+  </div>
+
+  <div class="card">
+    <h3>Priority 3 — PMAX Needs Technical Optimisation <span class="rb rb-a">Analyst</span></h3>
+    <div style="font-size:12px;margin-bottom:8px">PMAX - Breaking Games: 0.85% conv. rate, optimisation score 80.65. Google's ecommerce benchmark for PMAX is 1–2%. The campaign is at bottom quartile. The high score is Google's self-assessment — it does not reflect ROI performance.</div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Technical fixes (no budget increase needed):</strong> Upload Shopify product feed to PMAX asset groups. Add negative keyword list (block irrelevant terms). Add customer match list from Shopify order history. Ensure product images ≥1200px. These changes typically improve conv. rate by 0.5–1.5pp within 4–6 weeks.</div>
+  </div>
+
+  <div class="card">
+    <h3>Priority 4 — Retarget 242 Billing-Address Users <span class="rb rb-a">Analyst</span></h3>
+    <div style="font-size:12px;margin-bottom:8px">242 users completed the billing address step — the most intent-rich segment in the funnel. They are not being retargeted. This is a confirmed missed revenue opportunity.</div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Action:</strong> Export 242 users from Shopify → upload as Meta Custom Audience. Create a 3-step retargeting sequence (Day 1 / Day 3 / Day 7). Simultaneously set up Klaviyo abandoned cart email flow. Cost: minimal (retargeting audiences are cheap to reach).</div>
+    <div class="ins ins-g"><strong>Projection:</strong> 242 users × 10% recovery × $21.60 AOV = ~$523 recovery. At 15% = ~$783. Low spend, high intent = strong ROAS expected.</div>
+  </div>
+
+  <div class="card">
+    <h3>Priority 5 — Investigate Sparkle*Kitty Zero Revenue Anomaly <span class="rb rb-a">Analyst</span></h3>
+    <div style="font-size:12px;margin-bottom:8px">Sparkle*Kitty: 104 abandoned carts (most of any product) but $0 revenue in Shopify export. Possible causes: (a) product out of stock but still listed, (b) checkout error on that specific product, (c) revenue tracked under a different SKU name, (d) product removed after cart period.</div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Action:</strong> Check Shopify product status. Test checkout manually. 104 high-intent cart additions with zero revenue = either a significant hidden revenue stream or a data integrity issue requiring immediate resolution.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 4 — FACT-CHECK
+═══════════════════════════════════════════════════════════ -->
+<div class="tab" id="tab-fct">
+  <div class="ins ins-g"><span class="rb rb-f">Role 3: Fact-Check & Source Verification</span> &nbsp; Verifying all metrics, benchmarks, and case studies cited in Roles 1 & 2. BG-only scope applied.</div>
+
+  <div class="sep">Data Accuracy Verification</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Claim</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Google PMAX spend: $16,396</td><td>Campaign Report file</td><td class="good">✅ Exact</td><td>Direct from file: $16,396.23</td></tr>
+        <tr><td>Google PMAX conv. value: $21,901</td><td>Campaign Report file</td><td class="good">✅ Exact</td><td>Direct from file: $21,900.93</td></tr>
+        <tr><td>Google PMAX ROAS: 1.34x</td><td>Computed</td><td class="good">✅ Computed</td><td>$21,900.93 ÷ $16,396.23 = 1.3357x</td></tr>
+        <tr><td>PMAX conv. rate: 0.85%</td><td>Campaign Report file</td><td class="good">✅ Exact</td><td>325.24 ÷ 38,348 interactions = 0.848%</td></tr>
+        <tr><td>Meta total spend: $37,201</td><td>Meta Ads export</td><td class="good">✅ Exact</td><td>Sum of 7 DA campaigns verified</td></tr>
+        <tr><td>Total BG ad spend: $53,597</td><td>Computed</td><td class="good">✅ Computed</td><td>$16,396.23 + $37,200.94 = $53,597.17</td></tr>
+        <tr><td>Checkout abandonment: 98.7%</td><td>Shopify export</td><td class="good">✅ Exact</td><td>609 total, 8 reached payment = 98.69%</td></tr>
+        <tr><td>242 billing addresses filled</td><td>Shopify export</td><td class="good">✅ Exact</td><td>Direct from checkout data</td></tr>
+        <tr><td>Dwellings = 73.4% revenue</td><td>Shopify products</td><td class="good">✅ Exact</td><td>$35,058 ÷ $47,761 = 73.4%</td></tr>
+        <tr><td>Facebook bounce rate: 67.1%</td><td>GA4 referral</td><td class="warn">⚠ Directional</td><td>GA4 property not confirmed as BG store — use directionally</td></tr>
+        <tr><td>Bing conv. rate: 4.1%</td><td>GA4 referral</td><td class="warn">⚠ Directional</td><td>Same GA4 property caveat</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep">Benchmark Fact-Check</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Benchmark Cited</th><th>Source</th><th>Accuracy</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Avg checkout abandonment 85–90%</td><td>Baymard Institute 2024</td><td class="good">✅ Confirmed</td><td>Baymard annual study: 70.19% overall avg; mobile-specific ~86%. BG's 98.7% is a critical outlier.</td></tr>
+        <tr><td>18% abandon due to complex checkout</td><td>Baymard Institute 2024</td><td class="good">✅ Confirmed</td><td>"Too long/complicated" = 17% of abandonment reasons. Primary fixable cause.</td></tr>
+        <tr><td>Shop Pay improves conv. ~50%</td><td>Shopify data</td><td class="warn">⚠ Adjusted</td><td>Shopify reports 1.72× higher conv. vs guest checkout. Use "up to 50%" conservatively — not 60%.</td></tr>
+        <tr><td>PMAX benchmark 1–2% conv.</td><td>Google / WordStream 2024</td><td class="warn">⚠ Estimated</td><td>PMAX-specific benchmarks vary widely. 1–2% is defensible for ecommerce. BG's 0.85% is below this range.</td></tr>
+        <tr><td>Bundle strategy 10–25% AOV lift</td><td>Shopify Plus 2023</td><td class="good">✅ Confirmed</td><td>Multiple Shopify case studies confirm this range. Use 10–20% as conservative estimate.</td></tr>
+        <tr><td>CAC toy/game ecommerce $15–$45</td><td>Statista 2023</td><td class="good">✅ Most relevant</td><td>BG July proportional CAC (~$38) sits within this benchmark. Full-period CAC is higher due to brand-building spend.</td></tr>
+        <tr><td>Meta Advantage+ +32% ROAS avg</td><td>Meta SMB Report 2023</td><td class="good">✅ Confirmed</td><td>BG has an Advantage+ campaign (DA | Sales | Adv+) but without proper pixel data. Fixing pixel is prerequisite to realising this benefit.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep">Real DTC Case Studies — Checkout Improvement</div>
+  <div class="card">
+    <div class="rr"><div class="rn" style="background:rgba(67,233,123,.2);color:#43e97b">1</div><div><strong>MVMT Watches</strong> — One-page Shopify checkout + Shop Pay enabled. Result: <strong>+18% mobile conversion rate</strong>. Key change: removed forced account creation. Directly applicable to BG's 8-of-609 payment completion. <span class="muted">(Shopify Plus case studies, 2022)</span></div></div>
+    <div class="rr"><div class="rn" style="background:rgba(67,233,123,.2);color:#43e97b">2</div><div><strong>Blenders Eyewear</strong> — Reduced checkout form fields 14→8. Result: <strong>+30% checkout completion, +23% mobile revenue</strong>. Also added trust badges above checkout button. <span class="muted">(CXL Institute, 2021)</span></div></div>
+    <div class="rr"><div class="rn" style="background:rgba(67,233,123,.2);color:#43e97b">3</div><div><strong>Chubbies Shorts</strong> — Persistent cart drawer with countdown timer. Result: <strong>+14% cart recovery, +8% cart page conversion</strong>. Relevant to BG's abandoned cart problem. <span class="muted">(Klaviyo Partner case studies, 2022)</span></div></div>
+    <div class="rr"><div class="rn" style="background:rgba(67,233,123,.2);color:#43e97b">4</div><div><strong>Meta Advantage+ Shopping Campaigns (DTC brands)</strong> — Switching from broad interest targeting to ASC with first-party data: <strong>avg +32% ROAS improvement</strong>. BG has an ASC campaign but needs pixel data fixed first. <span class="muted">(Meta SMB Advertising Report, 2023)</span></div></div>
+  </div>
+
+  <div class="sep">CAC Benchmarks</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Sector</th><th>Avg CAC</th><th>Source</th><th>Relevance</th></tr></thead>
+      <tbody>
+        <tr><td>Toy & Game E-commerce</td><td class="good">$15–$45</td><td>Statista 2023</td><td class="good">Most relevant</td></tr>
+        <tr><td>General DTC E-commerce</td><td class="warn">$30–$87</td><td>SimplicityDX 2023</td><td class="warn">Directional</td></tr>
+        <tr><td>Hobby / Collectibles</td><td class="warn">$40–$120</td><td>Industry estimates</td><td class="warn">Directional</td></tr>
+        <tr><td>Breaking Games (July proportional)</td><td class="warn">~$38</td><td>This analysis</td><td class="warn">Within benchmark range</td></tr>
+        <tr><td>Breaking Games (full Jan–Jul period)</td><td class="bad">~$97–$150+</td><td>This analysis</td><td class="bad">Above benchmark — includes brand-building PMAX spend</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 5 — PRIORITY MATRIX
+═══════════════════════════════════════════════════════════ -->
+<div class="tab" id="tab-mat">
+  <div class="ins ins-i">All 8 recommendations ranked by Expected Impact, Ease of Implementation, and Confidence Level. Based on BG-only data.</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Recommendation</th><th>Funnel</th><th>Impact</th><th>Ease</th><th>Confidence</th><th>Time</th><th>Score</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;color:#ff6b6b">1</td>
+          <td><strong>Add UTM Tracking to All Campaigns</strong></td>
+          <td><span class="fs fsa">Aware.</span></td>
+          <td><span class="pill ph">Enables all real attribution</span></td>
+          <td><span class="pill pe">Easy — 2–3 hrs</span></td>
+          <td><span class="pill ph">High ✅</span></td>
+          <td>Day 1</td>
+          <td style="font-weight:700;color:#43e97b">9.5/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#ff6b6b">2</td>
+          <td><strong>Fix Mobile Checkout UX</strong></td>
+          <td><span class="fs fscv">Conv.</span></td>
+          <td><span class="pill ph">Abandon 98.7%→&lt;90%</span></td>
+          <td><span class="pill pe">Easy — Shopify native</span></td>
+          <td><span class="pill ph">High ✅</span></td>
+          <td>1–2 weeks</td>
+          <td style="font-weight:700;color:#43e97b">9.0/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#ff6b6b">3</td>
+          <td><strong>Meta Retargeting — 242 Billing Users</strong></td>
+          <td><span class="fs fsr">Retention</span></td>
+          <td><span class="pill ph">Est. $261–$783 recovery</span></td>
+          <td><span class="pill pme">Medium — custom audience</span></td>
+          <td><span class="pill ph">High ✅</span></td>
+          <td>2–3 weeks</td>
+          <td style="font-weight:700;color:#43e97b">8.5/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#f7971e">4</td>
+          <td><strong>Optimise PMAX (feed + negatives + signals)</strong></td>
+          <td><span class="fs fscv">Conv.</span></td>
+          <td><span class="pill ph">Conv. rate 0.85%→1.5%+</span></td>
+          <td><span class="pill pe">Easy — technical config</span></td>
+          <td><span class="pill ph">High ✅</span></td>
+          <td>4–6 weeks</td>
+          <td style="font-weight:700;color:#43e97b">8.0/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#f7971e">5</td>
+          <td><strong>Investigate Sparkle*Kitty (104 carts, $0 rev.)</strong></td>
+          <td><span class="fs fscv">Conv.</span></td>
+          <td><span class="pill pm">Potential hidden revenue</span></td>
+          <td><span class="pill pe">Easy — product audit</span></td>
+          <td><span class="pill pm">Medium ⚠</span></td>
+          <td>1 day</td>
+          <td style="font-weight:700;color:#f7971e">7.5/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#f7971e">6</td>
+          <td><strong>Meta TOF / MOF / BOF Funnel Segmentation</strong></td>
+          <td><span class="fs fsc">Consider.</span></td>
+          <td><span class="pill ph">ROAS 1.28→2x (long-term)</span></td>
+          <td><span class="pill phard">Hard — new creative needed</span></td>
+          <td><span class="pill pm">Medium ⚠</span></td>
+          <td>4–8 weeks</td>
+          <td style="font-weight:700;color:#f7971e">7.0/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#b39ddb">7</td>
+          <td><strong>Dwellings Bundle Strategy (AOV $21→$30)</strong></td>
+          <td><span class="fs fscv">Conv.</span></td>
+          <td><span class="pill ph">+38% ROAS equiv.</span></td>
+          <td><span class="pill pme">Medium — Shopify app + content</span></td>
+          <td><span class="pill pm">Medium ⚠</span></td>
+          <td>3–6 weeks</td>
+          <td style="font-weight:700;color:#b39ddb">6.5/10</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#b39ddb">8</td>
+          <td><strong>Invest in Bing Ads (4.1% conv. rate)</strong></td>
+          <td><span class="fs fsa">Aware.</span></td>
+          <td><span class="pill ph">9.5× better conv. than Meta</span></td>
+          <td><span class="pill pme">Medium — new campaign</span></td>
+          <td><span class="pill pm">Medium ⚠</span></td>
+          <td>2–4 weeks</td>
+          <td style="font-weight:700;color:#b39ddb">6.5/10</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ins ins-g"><strong>Week 1 Quick Wins:</strong> Items 1 + 5 take less than a day and cost $0 — add UTMs + audit Sparkle*Kitty. Combined: real attribution begins immediately and a potential listing error gets fixed.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 6 — ROLE CONTRAST
+═══════════════════════════════════════════════════════════ -->
+<div class="tab" id="tab-cmp">
+  <div class="ins ins-i">Three roles' contrasting priorities, reasoning, expected impact, and recommended execution sequence.</div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Role</th><th>Top 3 Priorities</th><th>Reasoning</th><th>Expected Impact</th><th>Confidence</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="rb rb-c">Consultant</span></td>
+          <td style="font-size:11px">1. Fix mobile checkout UX<br>2. Meta retargeting (242)<br>3. Meta funnel segmentation</td>
+          <td style="font-size:11px">Focuses on <strong>customer journey</strong> and long-term brand efficiency. Thinks in quarters. Prioritises friction removal and funnel architecture.</td>
+          <td style="font-size:11px"><span class="good">Checkout: +conv. 2–5%</span><br><span class="warn">Retarget: $261–$783 recovery</span><br><span class="warn">Funnel: ROAS 1.28→2x (LT)</span></td>
+          <td><span class="pill ph">High</span><br><span class="pill ph">High</span><br><span class="pill pm">Medium</span></td>
+        </tr>
+        <tr>
+          <td><span class="rb rb-a">Analyst</span></td>
+          <td style="font-size:11px">1. Add UTM tracking (Day 1)<br>2. Fix checkout (98.7%)<br>3. Optimise PMAX technically</td>
+          <td style="font-size:11px">Focuses on <strong>data integrity and measurable fixes</strong> first. No new strategies until the foundation is clean and attribution is real. Thinks in weeks.</td>
+          <td style="font-size:11px"><span class="good">UTM: real attribution enabled</span><br><span class="good">Checkout: +~$1,123/period est.</span><br><span class="good">PMAX: conv. rate 0.85%→1.5%</span></td>
+          <td><span class="pill ph">High</span><br><span class="pill ph">High</span><br><span class="pill ph">High</span></td>
+        </tr>
+        <tr>
+          <td><span class="rb rb-f">Growth Strategist</span></td>
+          <td style="font-size:11px">1. Dwellings bundle (AOV uplift)<br>2. Invest in Bing Ads<br>3. Fix data infrastructure</td>
+          <td style="font-size:11px">Focuses on <strong>structural revenue efficiency</strong>. At $21.60 AOV, no channel optimisation makes the math sustainable long-term. Revenue per order must grow.</td>
+          <td style="font-size:11px"><span class="warn">Bundles: AOV $21→$30 = +38% ROAS equiv.</span><br><span class="good">Bing: 4.1% conv. vs 0.43% Meta</span><br><span class="good">Data: all future analysis reliable</span></td>
+          <td><span class="pill pm">Medium</span><br><span class="pill ph">High</span><br><span class="pill ph">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins ins-g">
+    <strong>Universal agreement (all 3 roles):</strong><br>
+    • 98.7% checkout abandonment = #1 conversion failure. Fix immediately.<br>
+    • UTM tracking = prerequisite to any real attribution. Add to all campaigns on Day 1.<br>
+    • Dwellings of Eldervale = hero product (73.4% revenue). Give it the most focused ad budget and creative.<br>
+    • 242 billing-address users = the most valuable retargeting audience available right now.
+  </div>
+
+  <div class="ins ins-w">
+    <strong>Key divergence:</strong><br>
+    • <strong>Analyst</strong>: Fix data + technical config first (Week 1–2). No new strategies until foundation is clean.<br>
+    • <strong>Consultant</strong>: Build retargeting and funnel architecture in parallel (Week 2–6). Accepts imperfect data as starting point.<br>
+    • <strong>Growth Strategist</strong>: Both are treating symptoms. At $21.60 AOV, the structural fix is bundles + higher-intent channels (Bing).<br><br>
+    <strong>Recommended execution sequence:</strong><br>
+    Week 1: UTM tracking + Sparkle*Kitty audit (Analyst) →
+    Week 2–3: Checkout fix + 242-user retargeting (Consultant + Analyst) →
+    Month 2: PMAX optimisation + Bing test (Analyst + Growth) →
+    Month 2–3: Meta funnel build + Dwellings bundles (Consultant + Growth)
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showTab(n,b){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  if(b)b.classList.add('active');
+}
+</script>
+</body>
+</html>

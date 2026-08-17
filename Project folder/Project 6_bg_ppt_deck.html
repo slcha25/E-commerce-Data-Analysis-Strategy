@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breaking Games Presentation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surf:#1a1d27;--surf2:#222636;--bdr:rgba(255,255,255,0.08);--txt:#e8eaf0;--muted:#8b8fa8;--good:#43e97b;--warn:#f7971e;--bad:#ff6b6b;--acc:#7b61ff;--info:#4285f4}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+
+/* ── DECK CHROME ── */
+#deck{display:flex;flex-direction:column;height:100vh}
+#topbar{background:var(--surf);border-bottom:1px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+#topbar .brand{font-size:14px;font-weight:700;color:var(--txt)}
+#topbar .brand span{color:var(--acc)}
+#nav-dots{display:flex;gap:6px;margin-left:8px}
+.dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--muted);background:transparent;cursor:pointer;transition:all .2s}
+.dot.on{background:var(--acc);border-color:var(--acc)}
+#slide-counter{font-size:11px;color:var(--muted);margin-left:4px}
+.nav-btn{padding:5px 14px;border:1px solid var(--bdr);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:11px;transition:all .2s;margin-left:auto}
+.nav-btn:hover{background:var(--surf2);color:var(--txt)}
+#slide-area{flex:1;overflow-y:auto;padding:24px 32px}
+
+/* ── SLIDE ── */
+.slide{display:none;animation:fi .25s ease}
+.slide.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LAYOUT ── */
+.s-tag{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.s-title{font-size:20px;font-weight:700;line-height:1.3;margin-bottom:4px;letter-spacing:-.3px}
+.s-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
+
+/* ── CARDS ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.card h4{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+
+/* ── KPI ── */
+.kpi{background:var(--surf2);border-radius:9px;padding:14px;text-align:center}
+.kpi .n{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi .l{font-size:10px;color:var(--muted)}
+.kpi .s{font-size:10px;color:var(--muted);margin-top:2px}
+.red{color:var(--bad)}.grn{color:var(--good)}.amb{color:var(--warn)}.blue{color:var(--info)}.acc{color:var(--acc)}
+
+/* ── ALERTS ── */
+.al{border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;line-height:1.75}
+.al-r{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.25)}.al-r strong{color:var(--bad)}
+.al-y{background:rgba(247,151,30,.1);border:1px solid rgba(247,151,30,.25)}.al-y strong{color:var(--warn)}
+.al-g{background:rgba(67,233,123,.1);border:1px solid rgba(67,233,123,.25)}.al-g strong{color:var(--good)}
+.al-b{background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.25)}.al-b strong{color:var(--info)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:6px 8px;border-bottom:1px solid var(--bdr);font-weight:500}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surf2)}
+.tbl .r{text-align:right}
+
+/* ── FUNNEL ── */
+.frow{margin-bottom:10px}
+.flabs{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.fbar{height:7px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.ffill{height:100%;border-radius:4px;transition:width .8s ease}
+
+/* ── PHASE ── */
+.phase{border-left:3px solid;padding:12px 14px;margin-bottom:10px;border-radius:0 8px 8px 0}
+.ph-r{border-color:var(--bad);background:rgba(255,107,107,.06)}
+.ph-y{border-color:var(--warn);background:rgba(247,151,30,.06)}
+.ph-g{border-color:var(--good);background:rgba(67,233,123,.06)}
+.phase .ph-t{font-size:12px;font-weight:700;margin-bottom:7px}
+.ph-r .ph-t{color:var(--bad)}.ph-y .ph-t{color:var(--warn)}.ph-g .ph-t{color:var(--good)}
+.phase .ph-d{font-size:11px;color:var(--muted);line-height:1.75}
+
+/* ── PILL ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500}
+.pr{background:rgba(255,107,107,.15);color:var(--bad)}
+.py{background:rgba(247,151,30,.15);color:var(--warn)}
+.pg{background:rgba(67,233,123,.15);color:var(--good)}
+.pb{background:rgba(66,133,244,.15);color:var(--info)}
+.pp{background:rgba(123,97,255,.15);color:var(--acc)}
+
+/* ── ROW ── */
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.row:last-child{border-bottom:none}
+.rl{color:var(--muted)}.rv{font-weight:600}
+
+/* ── STEP ── */
+.st{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.st:last-child{border-bottom:none}
+.stn{width:22px;height:22px;border-radius:50%;background:rgba(66,133,244,.2);color:var(--info);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.stt{font-size:12px;font-weight:600;margin-bottom:2px}
+.std{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:center;gap:0;margin-bottom:14px;flex-wrap:wrap}
+.fbox{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:8px 12px;text-align:center;font-size:11px;min-width:100px;flex:1}
+.fbox .fn{font-size:16px;font-weight:700;margin-bottom:2px}
+.farr{padding:0 6px;color:var(--muted);font-size:16px;flex-shrink:0}
+.fbox.bad{border-color:rgba(255,107,107,.4);background:rgba(255,107,107,.07)}
+.fbox.warn{border-color:rgba(247,151,30,.4);background:rgba(247,151,30,.07)}
+.fbox.good{border-color:rgba(67,233,123,.4);background:rgba(67,233,123,.07)}
+.fbox.dead{border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.15)}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">Online Board Game Retailer <span>/ E-Commerce Growth Strategy</span></div>
+  <div id="nav-dots"></div>
+  <span id="slide-counter">1 / 6</span>
+  <button class="nav-btn" onclick="go(-1)">← Prev</button>
+  <button class="nav-btn" onclick="go(1)">Next →</button>
+</div>
+
+<div id="slide-area">
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — EXECUTIVE SUMMARY
+══════════════════════════════════════════════ -->
+<div class="slide on" id="s0">
+  <div style="text-align:right;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr)">
+    <div style="font-size:13px;font-weight:700">Sok Leng Chan</div>
+    <div style="font-size:11px;color:var(--muted)">E-commerce Data Analysis & Strategy Externship</div>
+    <div style="font-size:11px;color:var(--acc)">Project: Online Board Games Cross-Platform Dashboard · Jun 2026</div>
+  </div>
+  <div class="s-tag">Slide 1 — Executive Summary</div>
+  <div class="s-title">Online Board Game Retailer spends $53,597 on ads — but 98.7% of checkout sessions never complete</div>
+  <div class="s-sub">The product has real demand. The biggest friction is in the Facebook → product page → purchase flow.</div>
+
+  <div class="g4">
+    <div class="kpi"><div class="n amb">$53,597</div><div class="l">Total BG ad spend</div><div class="s">Jan–Jul 2025</div></div>
+    <div class="kpi"><div class="n red">0.07%</div><div class="l">Facebook conv. rate</div><div class="s">Dwellings product page</div></div>
+    <div class="kpi"><div class="n grn">1.06%</div><div class="l">Google conv. rate</div><div class="s">Same product page · 15× better</div></div>
+    <div class="kpi"><div class="n red">98.7%</div><div class="l">Checkout abandonment</div><div class="s">609 started · 8 completed</div></div>
+  </div>
+
+  <!-- CHECKOUT FLOW DIAGRAM -->
+  <div class="flow">
+    <div class="fbox warn"><div class="fn amb">609</div>Started checkout</div>
+    <div class="farr">→</div>
+    <div class="fbox warn"><div class="fn amb">242</div>Filled billing</div>
+    <div class="farr">→</div>
+    <div class="fbox dead"><div class="fn red">8</div>Reached payment</div>
+    <div class="farr">→</div>
+    <div class="fbox bad"><div class="fn red">601</div>Abandoned</div>
+  </div>
+
+  <div class="al al-r">
+    <strong>Traffic quality mismatch:</strong> Meta drives 62,447 pageviews to the Dwellings product page; Google sends 9,183. Yet both produce exactly 41 completed checkouts. Facebook converts at 0.07% vs Google's 1.06% — a 15× gap on the same product. This is a conversion path problem, not a product problem.
+  </div>
+  <div class="al al-y">
+    <strong>Checkout friction:</strong> 98.7% abandonment — 8–13 points above the 85–90% industry average (Baymard Institute 2024). The 242→8 billing-to-payment drop is a payment interface failure, not buyer hesitation.
+  </div>
+
+  <div class="g3">
+    <div class="card" style="border-top:3px solid var(--bad)"><h4>🔴 Immediate win</h4><div style="font-size:12px;line-height:1.7">Fix mobile checkout + retarget 242 billing-address users.<br><span class="grn">Est. +$1,123–$1,800 revenue recovery per period</span></div></div>
+    <div class="card" style="border-top:3px solid var(--warn)"><h4>🟡 Quick optimisation</h4><div style="font-size:12px;line-height:1.7">Add UTM tracking + Meta Pixel Purchase event.<br><span class="amb">Unlocks real attribution across all campaigns</span></div></div>
+    <div class="card" style="border-top:3px solid var(--good)"><h4>🟢 Foundation building</h4><div style="font-size:12px;line-height:1.7">Meta funnel segmentation + Dwellings bundle strategy.<br><span class="grn">Target: Meta ROAS 1.28→2x over 60 days</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — METHODOLOGY
+══════════════════════════════════════════════ -->
+<div class="slide" id="s1">
+  <div class="s-tag">Slide 2 — Research Process & Methodology</div>
+  <div class="s-title">We connected four data sources to map the complete customer journey</div>
+  <div class="s-sub">From ad impression → landing page → checkout → purchase — each step traced and cross-referenced.</div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h4>Data sources analysed</h4>
+    <table class="tbl">
+      <thead><tr><th>Platform</th><th>Data extracted</th><th>Period</th><th>Key metrics</th></tr></thead>
+      <tbody>
+        <tr><td><span class="blue">●</span> Google Analytics (GA4)</td><td>6,417 sessions, channel breakdown, referral behaviour</td><td>Jan 1 – Jul 29, 2025</td><td>Traffic sources, bounce rates, conv. rates, page paths</td></tr>
+        <tr><td><span style="color:#1877f2">●</span> Meta Ads Manager</td><td>7 campaigns, 7 ad sets</td><td>Jan 1 – Jul 29, 2025</td><td>CTR 84–250%, CPC $0.46 avg, ROAS 1.28x, impr. 7.6M</td></tr>
+        <tr><td><span class="blue">●</span> Google Ads</td><td>1 BG campaign (PMAX), 2.6M impressions</td><td>Jan 1 – Jul 29, 2025</td><td>Conv. value $21,901, ROAS 1.34x, conv. rate 0.85%</td></tr>
+        <tr><td><span class="grn">●</span> Shopify Analytics</td><td>29 daily orders (July), 15 products, 609 checkout sessions</td><td>Jul 1–29 daily; Jan–Jul products</td><td>Checkout funnel, AOV $21.60, abandon 98.7%, net sales $47,761</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h4>Research phases</h4>
+      <div class="st"><div class="stn">1</div><div><div class="stt">Platform data collection</div><div class="std">Extracted from GA4, Meta Ads, Google Ads, Shopify. Aligned to Jan 1 – Jul 29, 2025.</div></div></div>
+      <div class="st"><div class="stn">2</div><div><div class="stt">Funnel mapping</div><div class="std">Connected traffic → landing pages → engagement → checkout → purchase. Dwellings page = key conversion node.</div></div></div>
+      <div class="st"><div class="stn">3</div><div><div class="stt">Cross-platform analysis</div><div class="std">Found 15× conversion gap (Facebook 0.07% vs Google 1.06%) despite 6.8× more Facebook pageviews.</div></div></div>
+      <div class="st"><div class="stn">4</div><div><div class="stt">Bottleneck identification</div><div class="std">Three drop-off stages: Facebook bounce (94.28%), billing→payment failure (242→8), zero UTM attribution.</div></div></div>
+      <div class="st"><div class="stn">5</div><div><div class="stt">Benchmark comparison</div><div class="std">Evaluated against Baymard Institute, Shopify Plus, and WordStream. Ranked by impact, effort, and confidence.</div></div></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <h4>The business challenge</h4>
+        <table class="tbl">
+          <thead><tr><th>Metric</th><th class="r">Current</th><th class="r">Benchmark</th><th class="r">Gap</th></tr></thead>
+          <tbody>
+            <tr><td>Facebook conv. rate</td><td class="r red">0.07%</td><td class="r">1–2%</td><td class="r red">−1.93pp</td></tr>
+            <tr><td>Checkout abandonment</td><td class="r red">98.7%</td><td class="r">85–90%</td><td class="r red">−8–13pp</td></tr>
+            <tr><td>Meta ROAS</td><td class="r amb">1.28x</td><td class="r">2–3x</td><td class="r red">−0.72–1.72x</td></tr>
+            <tr><td>Google PMAX conv.%</td><td class="r amb">0.85%</td><td class="r">1–2%</td><td class="r red">below avg</td></tr>
+            <tr><td>Facebook bounce rate</td><td class="r red">94.28%</td><td class="r">40–60%</td><td class="r red">−34–54pp</td></tr>
+            <tr><td>Avg order value</td><td class="r amb">$21.60</td><td class="r">$35–$50</td><td class="r red">−$13–$28</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="al al-y"><strong>Key limitation:</strong> No UTM parameters exist. Attribution is time-based correlation, not causal. Adding UTMs (Day 1) transforms all future analysis.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — FUNNEL ANALYSIS
+══════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="s-tag">Slide 3 — Funnel Analysis: Traffic & Checkout</div>
+  <div class="s-title">Meta drives volume but Google delivers quality — and 98.7% of sessions never reach payment</div>
+
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <h4>Same product page — different channel quality</h4>
+        <table class="tbl">
+          <thead><tr><th>Channel</th><th class="r">Pageviews</th><th class="r">Bounce</th><th class="r">Conv.</th><th class="r">Checkouts</th></tr></thead>
+          <tbody>
+            <tr style="background:rgba(255,107,107,.05)"><td style="color:#1877f2">Facebook</td><td class="r">62,447</td><td class="r red">94.28%</td><td class="r red">0.07%</td><td class="r">41</td></tr>
+            <tr><td style="color:#4285f4">Google</td><td class="r">9,183</td><td class="r amb">68.03%</td><td class="r grn">1.06%</td><td class="r">41</td></tr>
+            <tr style="background:var(--surf2)"><td colspan="5" style="font-size:10px;color:var(--muted);padding:5px 8px">Facebook sends 6.8× more traffic but produces the same 41 checkouts → 15× efficiency gap</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h4>All referral sources — conversion ranking</h4>
+        <table class="tbl">
+          <thead><tr><th>Source</th><th class="r">Conv.%</th><th class="r">Bounce</th><th class="r">Checkouts</th></tr></thead>
+          <tbody>
+            <tr><td>🏆 Bing</td><td class="r grn">4.10%</td><td class="r grn">35.9%</td><td class="r">12</td></tr>
+            <tr><td>Gmail (email)</td><td class="r grn">2.32%</td><td class="r">50.0%</td><td class="r">8</td></tr>
+            <tr><td>BoardGameGeek</td><td class="r amb">1.24%</td><td class="r grn">44.9%</td><td class="r">5</td></tr>
+            <tr><td>Google</td><td class="r amb">0.43%</td><td class="r">58.3%</td><td class="r">359</td></tr>
+            <tr><td>Facebook</td><td class="r red">0.43%</td><td class="r red">67.1%</td><td class="r">94</td></tr>
+            <tr><td>Instagram</td><td class="r red">0.09%</td><td class="r">49.0%</td><td class="r">19</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <h4>Checkout funnel — July 2025</h4>
+        <div class="frow"><div class="flabs"><span>Started checkout</span><span style="font-weight:700">609</span></div><div class="fbar"><div class="ffill" style="width:100%;background:var(--acc)"></div></div></div>
+        <div class="frow"><div class="flabs"><span>Filled billing address</span><span class="amb" style="font-weight:700">242 (39.7%)</span></div><div class="fbar"><div class="ffill" style="width:39.7%;background:var(--warn)"></div></div></div>
+        <div class="frow"><div class="flabs"><span>Reached payment</span><span class="red" style="font-weight:700">8 (1.3%)</span></div><div class="fbar"><div class="ffill" style="width:1.3%;background:var(--bad)"></div></div></div>
+        <div style="font-size:11px;color:var(--bad);margin-top:8px">The 242→8 drop is a payment step failure — billing was completed, intent was confirmed.</div>
+      </div>
+      <div class="card">
+        <h4>Top abandoned products (checkout intent)</h4>
+        <div id="aband"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h4>Daily revenue — July 2025 (Shopify · exact)</h4>
+    <div style="position:relative;height:160px"><canvas id="revChart" role="img" aria-label="July 2025 daily revenue chart">Daily revenue for July 2025.</canvas></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — KEY BARRIERS
+══════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="s-tag">Slide 4 — Key Barriers & Opportunities</div>
+  <div class="s-title">Four critical bottlenecks costing Breaking Games revenue — all solvable within 8 weeks</div>
+
+  <div class="card" style="margin-bottom:12px;border-left:3px solid var(--bad)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:16px;font-weight:700;color:var(--bad)">Barrier 1</span>
+      <span style="font-size:13px;font-weight:600">Meta ads: highest traffic, lowest conversion (0.07%)</span>
+      <span class="pill pr" style="margin-left:auto">Critical</span>
+    </div>
+    <div class="g2">
+      <div>
+        <div style="font-size:12px;line-height:1.75;margin-bottom:6px"><strong>Current state:</strong> Facebook drives 62,447 pageviews, 94.28% bounce, 0.07% conv. Meta spend = $37,201 (69% of total BG budget). Blended ROAS = 1.28x.</div>
+        <div style="font-size:12px;line-height:1.75;color:var(--muted)"><strong>Root cause:</strong> Traffic-message mismatch. Ads attract broad audiences who are not purchase-ready. ~80% of Meta budget = TOF (Traffic), no MOF/BOF segmentation. Mobile UX compounds this.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;line-height:1.75;margin-bottom:6px"><strong>Solution:</strong> Segment Meta into TOF 40% / MOF 30% / BOF 30%. Create Facebook-specific landing page. Run 3-step retargeting (Day 1 / Day 3 / Day 7).</div>
+        <div style="font-size:12px;color:var(--good)"><strong>Target:</strong> Meta ROAS 1.28→2x over 60 days</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;border-left:3px solid var(--bad)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:16px;font-weight:700;color:var(--bad)">Barrier 2</span>
+      <span style="font-size:13px;font-weight:600">Mobile checkout: 98.7% abandonment — payment step failure</span>
+      <span class="pill pr" style="margin-left:auto">Critical</span>
+    </div>
+    <div class="g2">
+      <div>
+        <div style="font-size:12px;line-height:1.75;margin-bottom:6px"><strong>Current state:</strong> 609 checkout sessions → 242 billing filled → 8 reached payment. The 242→8 drop is a payment interface failure, not buyer intent.</div>
+        <div style="font-size:12px;line-height:1.75;color:var(--muted)"><strong>Root causes:</strong> Missing payment methods (Shop Pay, PayPal) · unexpected shipping cost reveal · mobile form UX failure · no visible guest checkout option.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;line-height:1.75;margin-bottom:6px"><strong>Solution:</strong> Enable Shop Pay + PayPal Express. Remove surprise costs. Guest checkout prominent. Retarget 242 billing-address users. Set up Klaviyo cart flow at 1hr / 24hr / 72hr.</div>
+        <div style="font-size:12px;color:var(--good)"><strong>Impact:</strong> Est. +$1,123–$1,800 recovery / period, zero extra ad spend</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="border-left:3px solid var(--warn)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:14px;font-weight:700;color:var(--warn)">Barrier 3</span><span style="font-size:12px;font-weight:600">Zero UTM tracking across all campaigns</span></div>
+      <div style="font-size:12px;line-height:1.75;margin-bottom:6px">No UTM parameters on Meta or Google. Every ROAS figure is estimated. Cannot confirm which campaigns drive which orders.</div>
+      <div style="font-size:12px;line-height:1.75;margin-bottom:6px"><strong>Fix (Day 1, 2–3 hrs):</strong> Add UTMs to all ad URLs. Connect BG Shopify to dedicated GA4. Install Meta Pixel with Purchase event.</div>
+      <div style="font-size:12px;color:var(--good)">Transforms all future analysis from estimated to exact</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--warn)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:14px;font-weight:700;color:var(--warn)">Barrier 4</span><span style="font-size:12px;font-weight:600">Sparkle*Kitty: 104 carts, $0 revenue</span></div>
+      <div style="font-size:12px;line-height:1.75;margin-bottom:6px">104 abandoned carts across two Sparkle*Kitty SKUs — most of any product — but $0 revenue in Shopify export. Possible causes: out-of-stock but listed, checkout bug on that SKU, or different SKU name in order history.</div>
+      <div style="font-size:12px;line-height:1.75"><strong>Action:</strong> Check Shopify product status. Test checkout manually. If checkout bug found — fix immediately, as it may explain part of the 98.7% abandonment rate.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — RECOMMENDATIONS
+══════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="s-tag">Slide 5 — Strategic Recommendations</div>
+  <div class="s-title">A three-phase approach can lift conversion and add meaningful revenue within 8 weeks</div>
+
+  <div class="phase ph-r">
+    <div class="ph-t">🔴 Phase 1 — Immediate (Week 1–2): Fix the leak</div>
+    <div class="ph-d">
+      <div class="g2">
+        <div><strong style="color:var(--txt)">Rec 1: Add UTM tracking</strong> — Add UTM params to every Meta + Google ad URL. Connect BG Shopify to dedicated GA4. Install Meta Pixel with Purchase event.<br><span class="grn">Impact: real attribution. Zero cost. 2–3 hours. Do this first.</span></div>
+        <div><strong style="color:var(--txt)">Rec 2: Fix mobile checkout UX</strong> — Enable Shop Pay + PayPal Express. Remove surprise shipping costs. Enable guest checkout. Test payment step on mobile.<br><span class="grn">Impact: est. +$1,123–$1,800 / period. Abandonment 98.7%→&lt;90%.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase ph-y">
+    <div class="ph-t">🟡 Phase 2 — Short-term (Week 2–4): Recover lost revenue</div>
+    <div class="ph-d">
+      <div class="g2">
+        <div><strong style="color:var(--txt)">Rec 3: Retarget 242 billing-address users</strong> — Export → Meta Custom Audience. 3-step sequence: Day 1 (product reminder + social proof) → Day 3 (urgency) → Day 7 (10% offer). Klaviyo cart flow at 1hr / 24hr / 72hr.<br><span class="grn">Impact: est. $261–$783 recovery. Minimal cost.</span></div>
+        <div><strong style="color:var(--txt)">Rec 4: Investigate Sparkle*Kitty anomaly</strong> — Audit Shopify status. Test checkout manually. Cross-reference SKU names.<br><span class="grn">Impact: may uncover hidden revenue or a checkout bug affecting all products.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase ph-g">
+    <div class="ph-t">🟢 Phase 3 — Long-term (Month 2–3): Optimise for growth</div>
+    <div class="ph-d">
+      <div class="g3">
+        <div><strong style="color:var(--txt)">Rec 5: Meta funnel segmentation</strong> — TOF 40% (awareness) · MOF 30% (product page visitors, gameplay creative) · BOF 30% (ATC + billing list, urgency + offer).<br><span class="grn">ROAS 1.28→2x over 60 days.</span></div>
+        <div><strong style="color:var(--txt)">Rec 6: Dwellings bundle strategy</strong> — "Dwellings Complete Bundle" (Standard + LEGENDARY) at 10% discount. "Customers Also Bought" upsell. Post-purchase email sequence.<br><span class="grn">AOV $21.60→$30+ = +38% ROAS equivalent.</span></div>
+        <div><strong style="color:var(--txt)">Rec 7: Optimise PMAX</strong> — Add negative keywords, upload Shopify product feed, add customer match list. Target conv. rate 0.85%→1.5%+ before scaling budget.<br><span class="grn">ROAS 1.34→1.6x+.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h4>Recommendation summary table</h4>
+    <table class="tbl">
+      <thead><tr><th>Recommendation</th><th>Expected impact</th><th>Effort</th><th>Timeline</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Add UTM tracking</strong></td><td class="grn">Real attribution — unlocks everything</td><td><span class="pill pg">Low</span></td><td>Day 1</td><td>🔴 Immediate</td></tr>
+        <tr><td><strong>Fix mobile checkout</strong></td><td class="grn">+$1,123–$1,800 est. / period</td><td><span class="pill pg">Low</span></td><td>Week 1–2</td><td>🔴 Immediate</td></tr>
+        <tr><td><strong>Retarget 242 users</strong></td><td>$261–$783 cart recovery</td><td><span class="pill py">Medium</span></td><td>Week 2–3</td><td>🟡 Short-term</td></tr>
+        <tr><td><strong>Sparkle*Kitty audit</strong></td><td>Potential listing fix / bug</td><td><span class="pill pg">Low</span></td><td>1 day</td><td>🟡 Short-term</td></tr>
+        <tr><td><strong>Meta funnel segmentation</strong></td><td class="grn">ROAS 1.28→2x (60 days)</td><td><span class="pill pr">High</span></td><td>Month 2</td><td>🟢 Long-term</td></tr>
+        <tr><td><strong>Dwellings bundle strategy</strong></td><td class="grn">AOV $21.60→$30+ (+38% ROAS equiv.)</td><td><span class="pill py">Medium</span></td><td>Month 2–3</td><td>🟢 Long-term</td></tr>
+        <tr><td><strong>Optimise PMAX</strong></td><td>Conv. rate 0.85%→1.5%+</td><td><span class="pill py">Medium</span></td><td>Month 2</td><td>🟢 Long-term</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 — PRIORITY MATRIX
+══════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="s-tag">Slide 6 — Priority Matrix</div>
+  <div class="s-title">All 7 recommendations ranked by impact, ease, and confidence</div>
+  <div class="s-sub">Based on BG ecommerce data only · Jan 1 – Jul 29, 2025</div>
+
+  <div class="card" style="margin-bottom:14px">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Recommendation</th><th>Funnel</th><th>Impact</th><th>Ease</th><th>Confidence</th><th>Time</th><th class="r">Score</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700;color:var(--bad)">1</td><td><strong>Add UTM tracking</strong></td><td><span class="pill pp">Foundation</span></td><td><span class="pill pg">Enables all attribution</span></td><td><span class="pill pg">Easy — 2–3 hrs</span></td><td><span class="pill pg">High ✅</span></td><td>Day 1</td><td class="r grn" style="font-weight:700">9.5</td></tr>
+        <tr><td style="font-weight:700;color:var(--bad)">2</td><td><strong>Fix mobile checkout</strong></td><td><span class="pill pg">Conversion</span></td><td><span class="pill pg">Abandon 98.7%→&lt;90%</span></td><td><span class="pill pg">Easy — Shopify native</span></td><td><span class="pill pg">High ✅</span></td><td>1–2 wks</td><td class="r grn" style="font-weight:700">9.0</td></tr>
+        <tr><td style="font-weight:700;color:var(--bad)">3</td><td><strong>Retarget 242 billing users</strong></td><td><span class="pill py">Retention</span></td><td><span class="pill pg">$261–$783 recovery</span></td><td><span class="pill py">Medium</span></td><td><span class="pill pg">High ✅</span></td><td>2–3 wks</td><td class="r grn" style="font-weight:700">8.5</td></tr>
+        <tr><td style="font-weight:700;color:var(--warn)">4</td><td><strong>Sparkle*Kitty audit</strong></td><td><span class="pill pg">Conversion</span></td><td><span class="pill py">Hidden revenue / bug fix</span></td><td><span class="pill pg">Easy — 1 day</span></td><td><span class="pill py">Medium ⚠</span></td><td>1 day</td><td class="r amb" style="font-weight:700">7.5</td></tr>
+        <tr><td style="font-weight:700;color:var(--warn)">5</td><td><strong>Meta funnel segmentation</strong></td><td><span class="pill pp">Consideration</span></td><td><span class="pill pg">ROAS 1.28→2x (60 days)</span></td><td><span class="pill pr">Hard — new creative</span></td><td><span class="pill py">Medium ⚠</span></td><td>4–8 wks</td><td class="r amb" style="font-weight:700">7.0</td></tr>
+        <tr><td style="font-weight:700;color:var(--muted)">6</td><td><strong>Dwellings bundle strategy</strong></td><td><span class="pill pg">Conversion</span></td><td><span class="pill pg">AOV $21→$30 (+38% ROAS)</span></td><td><span class="pill py">Medium</span></td><td><span class="pill py">Medium ⚠</span></td><td>3–6 wks</td><td class="r muted" style="font-weight:700">6.5</td></tr>
+        <tr><td style="font-weight:700;color:var(--muted)">7</td><td><strong>Optimise PMAX</strong></td><td><span class="pill pg">Conversion</span></td><td><span class="pill py">Conv. 0.85%→1.5%+</span></td><td><span class="pill py">Medium</span></td><td><span class="pill pg">High ✅</span></td><td>4–6 wks</td><td class="r muted" style="font-weight:700">6.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h4>Week 1 quick win stack</h4>
+      <div class="row"><span class="rl">Day 1</span><span class="rv">Add UTM tracking to all ad URLs (2 hrs, $0)</span></div>
+      <div class="row"><span class="rl">Day 1–2</span><span class="rv">Audit Sparkle*Kitty product status</span></div>
+      <div class="row"><span class="rl">Week 1</span><span class="rv">Test + fix mobile checkout payment step</span></div>
+      <div class="row"><span class="rl">Week 2</span><span class="rv">Upload 242 billing users to Meta Custom Audience</span></div>
+    </div>
+    <div class="card">
+      <h4>Expected outcomes at 8 weeks</h4>
+      <div class="row"><span class="rl">Checkout completion</span><span class="rv grn">&gt;5% (from 1.3%)</span></div>
+      <div class="row"><span class="rl">Cart recovery revenue</span><span class="rv grn">$261–$783</span></div>
+      <div class="row"><span class="rl">Meta ROAS target</span><span class="rv grn">1.28→2x</span></div>
+      <div class="row"><span class="rl">Attribution</span><span class="rv grn">Real (from estimated)</span></div>
+      <div class="row"><span class="rl">AOV target (Phase 3)</span><span class="rv grn">$21.60→$30+</span></div>
+      <div class="row"><span class="rl">PMAX conv. rate</span><span class="rv grn">0.85%→1.5%</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h4>Product performance — Shopify (Jan–Jul)</h4>
+    <div style="position:relative;height:160px"><canvas id="prodChart" role="img" aria-label="Top product net sales bar chart">Top product net sales chart.</canvas></div>
+  </div>
+</div>
+
+</div><!-- /slide-area -->
+</div><!-- /deck -->
+
+<script>
+// ── NAVIGATION ──
+const N=6; let cur=0;
+const dotsEl=document.getElementById('nav-dots');
+for(let i=0;i<N;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d);}
+
+function goTo(n){
+  document.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('on',i===n));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n));
+  document.getElementById('slide-counter').textContent=(n+1)+' / '+N;
+  cur=n;
+}
+function go(d){goTo(Math.max(0,Math.min(N-1,cur+d)));}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);});
+
+// ── ABANDONED PRODUCTS ──
+const prods=[
+  {p:'Sparkle*Kitty (2 SKUs)',n:104,flag:true},
+  {p:"We're Doomed!",n:41,flag:false},
+  {p:'Dwellings LEGENDARY Kit',n:34,flag:false},
+  {p:'Dwellings Oracle Hex Tile',n:34,flag:false},
+  {p:'Dwellings 2nd Edition',n:24,flag:false},
+];
+document.getElementById('aband').innerHTML=prods.map(p=>`
+  <div style="margin-bottom:7px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+      <span>${p.p}${p.flag?' <span style="color:var(--bad);font-size:10px">⚠ $0 revenue</span>':''}</span>
+      <span style="color:var(--warn);font-weight:600">${p.n} carts</span>
+    </div>
+    <div class="fbar"><div class="ffill" style="width:${Math.round(p.n/104*100)}%;background:${p.flag?'var(--bad)':'var(--warn)'}"></div></div>
+  </div>`).join('');
+
+// ── CHART.JS DEFAULTS ──
+Chart.defaults.color='#8b8fa8';
+Chart.defaults.borderColor='rgba(255,255,255,0.07)';
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+Chart.defaults.font.size=11;
+
+// ── SLIDE 3: DAILY REVENUE ──
+const revDates=['07-01','07-02','07-03','07-04','07-05','07-06','07-07','07-08','07-09','07-10','07-11','07-12','07-13','07-14','07-15','07-16','07-17','07-18','07-19','07-20','07-21','07-22','07-23','07-24','07-25','07-26','07-27','07-28','07-29'];
+const revVals=[207.49,42.87,144.02,202.59,208.98,306.83,405.28,19.22,410.08,267.18,25.0,12.30,163.23,130.74,143.77,107.74,327.73,68.58,90.70,110.60,267.07,271.87,197.33,201.74,170.39,186.12,274.19,405.05,60.73];
+new Chart(document.getElementById('revChart'),{
+  type:'bar',
+  data:{labels:revDates,datasets:[
+    {label:'Revenue ($)',data:revVals,backgroundColor:'rgba(67,233,123,0.55)',borderRadius:3},
+    {label:'AOV ($)',data:[20.75,21.43,24,25.32,20.9,20.46,23.84,9.61,27.34,17.81,12.5,6.15,16.32,32.69,28.75,11.97,21.85,13.72,18.14,12.29,20.54,22.66,32.89,18.34,24.34,18.61,34.27,27,10.12],
+      type:'line',borderColor:'#f7971e',backgroundColor:'transparent',yAxisID:'y2',tension:.4,pointRadius:2}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:v=>'$'+v}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+v}}}}
+});
+
+// ── SLIDE 6: PRODUCT CHART ──
+const prodNames=['Dwellings 2nd Ed','Dwellings LEGENDARY','Dwellings DELUXE',"We're Doomed!",'Wooden Upgrade','Big Box Magic','Game Mat','MIXTAPE','Expancity','Oracle Hex Tile'];
+const prodVals=[12488.67,11870.15,4778.60,3583.99,2454.71,1811.57,1767.71,1630.00,1206.00,1205.16];
+new Chart(document.getElementById('prodChart'),{
+  type:'bar',
+  data:{labels:prodNames,datasets:[{label:'Net Sales ($)',data:prodVals,backgroundColor:prodVals.map((v,i)=>i<3?'rgba(123,97,255,0.7)':i===3?'rgba(66,133,244,0.6)':'rgba(67,233,123,0.5)'),borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}}}}
+});
+</script>
+</body>
+</html>

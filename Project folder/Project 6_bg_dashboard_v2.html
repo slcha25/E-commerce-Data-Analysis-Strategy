@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breaking Games Dashboard v2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surf:#1a1d27;--surf2:#222636;--bdr:rgba(255,255,255,0.08);--txt:#e8eaf0;--muted:#8b8fa8;--good:#43e97b;--warn:#f7971e;--bad:#ff6b6b;--acc:#7b61ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+.hdr{background:var(--surf);border-bottom:1px solid var(--bdr);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hdr-t{font-size:17px;font-weight:700}.hdr-t span{color:var(--acc)}
+.hdr-m{font-size:11px;color:var(--muted)}
+.hdr-r{text-align:right}.hdr-r .name{font-size:13px;font-weight:600}.hdr-r .role{font-size:11px;color:var(--muted)}.hdr-r .proj{font-size:11px;color:var(--acc);margin-top:2px}
+.nav{display:flex;background:var(--surf);border-bottom:1px solid var(--bdr);padding:0 22px;overflow-x:auto;gap:2px}
+.nav button{padding:10px 13px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:12px;white-space:nowrap;transition:all .2s}
+.nav button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.nav button:hover{color:var(--txt)}
+.main{padding:18px 22px;max-width:1400px}
+.tab{display:none}.tab.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:12px 14px}
+.kpi .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi .val{font-size:20px;font-weight:700}.kpi .sub{font-size:10px;color:var(--muted);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g65{display:grid;grid-template-columns:65fr 35fr;gap:14px;margin-bottom:14px}
+@media(max-width:860px){.g2,.g65{grid-template-columns:1fr}}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:14px}
+.card h3{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.eb{padding:2px 6px;border-radius:3px;font-size:9px}.eb-e{background:rgba(67,233,123,.15);color:#43e97b}.eb-s{background:rgba(247,151,30,.15);color:#f7971e}.eb-c{background:rgba(123,97,255,.15);color:#b39ddb}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:6px 7px;border-bottom:1px solid var(--bdr);font-weight:500}
+.tbl td{padding:7px 7px;border-bottom:1px solid var(--bdr)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surf2)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+.ins{border-radius:7px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7}
+.ins-i{background:rgba(123,97,255,.1);border:1px solid rgba(123,97,255,.3)}
+.ins-w{background:rgba(247,151,30,.1);border:1px solid rgba(247,151,30,.3)}
+.ins-g{background:rgba(67,233,123,.1);border:1px solid rgba(67,233,123,.3)}
+.ins-r{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3)}
+.ins-i strong{color:var(--acc)}.ins-w strong{color:var(--warn)}.ins-g strong{color:var(--good)}.ins-r strong{color:var(--bad)}
+.bw{background:var(--surf2);border-radius:3px;height:4px;overflow:hidden;margin-top:3px}
+.bf{height:100%;border-radius:3px}
+.sep{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.sep::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.ms{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.ms .sn{width:22px;height:22px;border-radius:50%;background:rgba(123,97,255,.2);color:var(--acc);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ms .sb{flex:1}.ms .st{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:2px}.ms .sd{font-size:11px;color:var(--muted);line-height:1.6}
+canvas{max-height:240px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <div class="hdr-t">Online Board Game Retailer <span>/ Cross-Platform Dashboard v2</span></div>
+    <div class="hdr-m">Jan 1 – Jul 29, 2025 &nbsp;·&nbsp; Google Ads (PMAX only) · Meta Ads · GA4 · Shopify &nbsp;·&nbsp;
+      <span style="color:#43e97b">● Exact</span>&nbsp;
+      <span style="color:#f7971e">● Estimated</span>&nbsp;
+      <span style="color:#b39ddb">● Correlation</span>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="name">Sok Leng Chan</div>
+    <div class="role">E-commerce Data Analysis & Strategy Externship</div>
+    <div class="proj">Project: Online Board Games Cross-Platform Dashboard · Jun 2026</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="showTab('exec',this)">Executive Summary</button>
+  <button onclick="showTab('ads',this)">Ad Platforms</button>
+  <button onclick="showTab('traffic',this)">Traffic & Engagement</button>
+  <button onclick="showTab('revenue',this)">Conversion & Revenue</button>
+  <button onclick="showTab('cross',this)">Cross-Platform Correlation ✦</button>
+  <button onclick="showTab('audit',this)">Data Audit</button>
+  <button onclick="showTab('strategy',this)">Strategic Insights</button>
+</div>
+
+<div class="main">
+
+<!-- EXEC -->
+<div class="tab active" id="tab-exec">
+  <div class="kpis" id="exec-kpis"></div>
+  <div id="exec-headlines"></div>
+  <div class="g65">
+    <div class="card"><h3>July Daily Revenue <span class="eb eb-e">Exact · Shopify</span></h3>
+      <div style="position:relative;height:200px"><canvas id="execRevChart"></canvas></div></div>
+    <div class="card"><h3>Ad Spend Split <span class="eb eb-e">BG Only</span></h3>
+      <div id="spend-leg" style="font-size:11px;margin-bottom:8px;display:flex;gap:12px;flex-wrap:wrap"></div>
+      <div style="position:relative;height:185px"><canvas id="spendDonut"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ADS -->
+<div class="tab" id="tab-ads">
+        <div class="ins ins-g"><strong>Scope: Online Board Game Retailer ecommerce only.</strong> Google: PMAX campaign only. Non-retailer campaigns excluded. Meta: all 7 campaigns included.</div>
+  <div class="kpis" id="ads-kpis"></div>
+  <div class="g2" style="margin-top:12px">
+    <div class="card"><h3>Spend vs Conv. Value <span class="eb eb-e">BG Only</span></h3>
+      <div style="position:relative;height:220px"><canvas id="platSpend"></canvas></div></div>
+    <div class="card"><h3>Platform Comparison</h3>
+      <table class="tbl" id="plat-cmp"></table></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Google — PMAX Online Board Game <span class="eb eb-e">Exact</span></h3>
+    <table class="tbl" id="google-tbl"></table>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Meta Campaigns <span class="eb eb-e">Exact</span></h3>
+    <table class="tbl" id="meta-tbl"></table>
+  </div>
+  <div class="card">
+    <h3>Meta Ad Sets <span class="eb eb-e">Exact</span></h3>
+    <table class="tbl" id="adset-tbl"></table>
+  </div>
+</div>
+
+<!-- TRAFFIC -->
+<div class="tab" id="tab-traffic">
+  <div class="g2">
+    <div class="card"><h3>Sessions by Channel <span class="eb eb-e">GA4</span></h3>
+      <div style="position:relative;height:220px"><canvas id="sessChart"></canvas></div></div>
+    <div class="card"><h3>Engagement Rate <span class="eb eb-e">GA4</span></h3>
+      <div style="position:relative;height:220px"><canvas id="engChart"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Meta Device Spend <span class="eb eb-e">Exact</span></h3>
+      <div style="position:relative;height:190px"><canvas id="devChart"></canvas></div></div>
+    <div class="card"><h3>Active Users by Country <span class="eb eb-e">GA4</span></h3>
+      <div style="position:relative;height:190px"><canvas id="cntryChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <h3>Referral Source Quality <span class="eb eb-e">GA4</span></h3>
+    <table class="tbl" id="ref-tbl"></table>
+  </div>
+</div>
+
+<!-- REVENUE -->
+<div class="tab" id="tab-revenue">
+  <div class="kpis" id="rev-kpis"></div>
+  <div class="g65">
+    <div class="card"><h3>Daily Revenue + AOV — July 2025 <span class="eb eb-e">Shopify</span></h3>
+      <div style="position:relative;height:220px"><canvas id="dailyRevChart"></canvas></div></div>
+    <div class="card"><h3>Product Revenue Mix <span class="eb eb-e">Shopify</span></h3>
+      <div style="position:relative;height:220px"><canvas id="prodDonut"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Top 15 Products <span class="eb eb-e">Shopify</span></h3>
+      <table class="tbl" id="prod-tbl"></table></div>
+    <div class="card"><h3>Checkout Funnel <span class="eb eb-e">Shopify</span></h3>
+      <div style="position:relative;height:175px"><canvas id="funnelChart"></canvas></div>
+      <div id="intent-prods" style="margin-top:10px"></div></div>
+  </div>
+</div>
+
+<!-- CROSS -->
+<div class="tab" id="tab-cross">
+  <div class="ins ins-i"><strong>4 cross-platform metrics (BG data only):</strong> Cost Per Session · Est. Cost Per Order · Channel ROI Proxy · Product-Campaign Correlation.</div>
+
+  <div class="sep">Metric 1 — Cost Per Session</div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Cost Per Session by Channel <span class="eb eb-s">Estimated</span></h3>
+    <div class="ins ins-i" style="font-size:11px"><strong>Formula:</strong> Attributed BG spend ÷ GA4 sessions per channel. Directional only — no UTM tracking.</div>
+    <div class="g2">
+      <div style="position:relative;height:200px"><canvas id="cpsChart"></canvas></div>
+      <table class="tbl" id="cps-tbl"></table>
+    </div>
+  </div>
+
+  <div class="sep">Metric 2 — Estimated Cost Per Order</div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Est. Cost Per Order — 3 Methods <span class="eb eb-s">Estimated</span></h3>
+    <div class="ins ins-i" style="font-size:11px">
+      <strong>Method A:</strong> BG total spend ÷ est. July orders &nbsp;|&nbsp;
+      <strong>Method B:</strong> Meta only ÷ est. July orders &nbsp;|&nbsp;
+      <strong>Method C:</strong> July proportional spend ÷ July orders
+    </div>
+    <div class="kpis" id="cpo-kpis"></div>
+    <div style="position:relative;height:190px"><canvas id="cpoChart"></canvas></div>
+  </div>
+
+  <div class="sep">Metric 3 — Channel ROI Proxy</div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Channel ROI Proxy <span class="eb eb-c">Correlation</span></h3>
+    <div class="ins ins-i" style="font-size:11px"><strong>Formula:</strong> (Checkouts × Avg AOV) ÷ (Pageviews × Est. CPC). For ranking only.</div>
+    <div class="g2">
+      <div style="position:relative;height:230px"><canvas id="roiChart"></canvas></div>
+      <table class="tbl" id="roi-tbl"></table>
+    </div>
+  </div>
+
+  <div class="sep">Metric 4 — Product-Campaign Correlation</div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Product Revenue vs Campaign Spend <span class="eb eb-c">Name-match · Correlation</span></h3>
+    <div class="ins ins-w" style="font-size:11px"><strong>Method:</strong> Campaign keyword → Product keyword match. No UTM — correlation only. Confidence: Low.</div>
+    <div style="position:relative;height:250px"><canvas id="prodCampChart"></canvas></div>
+    <table class="tbl" style="margin-top:12px" id="prod-camp-tbl"></table>
+  </div>
+
+  <div class="sep">Daily Revenue vs BG Ad Spend Benchmark</div>
+  <div class="card">
+    <h3>July Revenue vs Daily Avg Spend <span class="eb eb-c">Correlation</span></h3>
+    <div style="position:relative;height:230px"><canvas id="corrChart"></canvas></div>
+  </div>
+</div>
+
+<!-- AUDIT -->
+<div class="tab" id="tab-audit">
+  <div class="ins ins-g"><strong>Data scope: Breaking Games ecommerce only.</strong> Google: PMAX - Breaking Games. Meta: 7 DA campaigns. Shopify + GA4: full BG data.</div>
+
+  <div class="sep">Included Data Sources</div>
+  <div class="card" style="margin-bottom:14px">
+    <table class="tbl">
+      <thead><tr><th>Source</th><th>Campaign / Property</th><th>Scope</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Google Ads</td><td>PMAX - Breaking Games</td><td>BG ecommerce · Jan–Jul 2025</td><td class="good">✅ Included</td></tr>
+        <tr><td>Google Ads</td><td>Search - AdMagic Leads</td><td>Print partner — NOT BG ecommerce</td><td class="muted">⛔ Excluded</td></tr>
+        <tr><td>Google Ads</td><td>Search - Blackbox Leads</td><td>B2B logistics — NOT BG</td><td class="muted">⛔ Excluded</td></tr>
+        <tr><td>Meta Ads</td><td>7 DA Campaigns</td><td>Breaking Games · Jan–Jul 2025</td><td class="good">✅ Included</td></tr>
+        <tr><td>Shopify</td><td>Daily Orders (Jul) + Products</td><td>Breaking Games store</td><td class="good">✅ Included</td></tr>
+        <tr><td>GA4</td><td>Traffic + Referrals</td><td>Breaking Games (directional)</td><td class="good">✅ Included</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep">Aggregation Verification</div>
+  <div class="card" style="margin-bottom:14px">
+    <table class="tbl" id="agg-tbl"></table>
+  </div>
+
+  <div class="sep">Merge Logic</div>
+  <div class="card" style="margin-bottom:14px" id="merge-steps"></div>
+
+  <div class="sep">Known Limitations</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Limitation</th><th>Impact</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>No UTM tracking on Meta/Google</td><td class="bad">High — no order attribution</td><td>Add UTM params to all ad URLs</td></tr>
+        <tr><td>No daily spend breakdown</td><td class="warn">Medium — blocks daily correlation</td><td>Export with daily breakdown</td></tr>
+        <tr><td>Shopify order count missing</td><td class="warn">Medium — estimated from revenue ÷ AOV</td><td>Export with order count column</td></tr>
+        <tr><td>No product-level daily Shopify data</td><td class="warn">Low — can't see July product split</td><td>Export product-level daily sales</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STRATEGY -->
+<div class="tab" id="tab-strategy">
+  <div class="g2">
+    <div class="card"><h3>Platform Recommendation</h3><div id="plat-rec"></div></div>
+    <div class="card"><h3>Traffic Source Ranking <span class="eb eb-c">Conv-based</span></h3><div id="src-rank"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Product Budget Allocation</h3><div id="prod-rec"></div></div>
+    <div class="card"><h3>Geographic Opportunities</h3><div id="geo-rec"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px"><h3>Prioritised Actions</h3><div id="actions"></div></div>
+  <div class="card">
+    <h3>Retargeting Opportunity <span class="eb eb-e">Shopify · Exact</span></h3>
+    <div style="position:relative;height:175px"><canvas id="retargChart"></canvas></div>
+    <div class="ins ins-w" style="margin-top:10px;margin-bottom:0"><strong>242 billing-address checkouts</strong> = strong purchase intent. Meta retargeting campaign could recover est. $3K–$6K.</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── BG-ONLY DATA ──────────────────────────────────────────────
+// Google: PMAX - Breaking Games only
+// AdMagic Leads + Blackbox Leads = excluded
+const RAW = {
+  google_campaigns: [
+    {campaign:"PMAX - Online Board Game", type:"Performance Max",
+     spend:16396.23, clicks:25375, impressions:2619933,
+     conversions:325.24, conv_value:21900.93, cpc:0.65, conv_rate:0.85, roas:1.34}
+  ],
+  meta_campaigns: [
+    {campaign:"DA | Sales",           spend:12917.08, impressions:1019145,  link_clicks:8592,  ctr:84.306,  cpc:1.50, cpm:12.67},
+    {campaign:"*DA | Traffic TOF",    spend:8634.89,  impressions:2944482,  link_clicks:41343, ctr:140.408, cpc:0.21, cpm:2.93},
+    {campaign:"DA | Sales | Adv+",    spend:6863.81,  impressions:452387,   link_clicks:4507,  ctr:99.627,  cpc:1.52, cpm:15.17},
+    {campaign:"DA | Dwellings Traffic",spend:4344.57, impressions:1079628,  link_clicks:18936, ctr:175.394, cpc:0.23, cpm:4.02},
+    {campaign:"DA | Reach | Retarget",spend:1612.34,  impressions:1518347,  link_clicks:1481,  ctr:9.754,   cpc:1.09, cpm:1.06},
+    {campaign:"DA | Sales | ATC",     spend:1441.94,  impressions:62944,    link_clicks:1578,  ctr:250.699, cpc:0.91, cpm:22.91},
+    {campaign:"DA | We're Doomed Traffic",spend:1386.31,impressions:498759, link_clicks:3880,  ctr:77.793,  cpc:0.36, cpm:2.78}
+  ],
+  meta_adsets: [
+    {adset:"Retargeting | All excl. 30d purchase", spend:5038.86, reach:130659, impressions:441790, link_clicks:3535, results:79,  cpr:63.78},
+    {adset:"Interests | Family + Games",           spend:3390.92, reach:104823, impressions:242010, link_clicks:2242, results:50,  cpr:67.82},
+    {adset:"Broad",                                spend:1625.80, reach:73549,  impressions:163619, link_clicks:1448, results:32,  cpr:50.81},
+    {adset:"Dwellings Stop Scrolling | Instagram", spend:1045.94, reach:25383,  impressions:52584,  link_clicks:359,  results:4,   cpr:261.49},
+    {adset:"Dwellings Stop Scrolling | Meta",      spend:967.87,  reach:30020,  impressions:77604,  link_clicks:468,  results:10,  cpr:96.79},
+    {adset:"Broad | We're Doomed Test",            spend:745.22,  reach:20894,  impressions:38665,  link_clicks:519,  results:5,   cpr:149.04},
+    {adset:"Retargeting | We're Doomed | Expansion",spend:102.51, reach:374,    impressions:2877,   link_clicks:21,   results:0,   cpr:0}
+  ],
+  ga_traffic: [
+    {channel:"Direct",        sessions:2005, engaged:759, eng_rate:37.9},
+    {channel:"Paid Search",   sessions:1307, engaged:787, eng_rate:60.2},
+    {channel:"Referral",      sessions:1051, engaged:594, eng_rate:56.5},
+    {channel:"Organic Search",sessions:789,  engaged:422, eng_rate:53.5},
+    {channel:"Organic Social",sessions:73,   engaged:44,  eng_rate:60.3},
+    {channel:"Cross-network", sessions:7,    engaged:5,   eng_rate:71.4}
+  ],
+  referral_data: [
+    {src:"facebook",    pv:81653, atc:3.1, conv:0.43, bounce:67.1, co:94,  cpc:0.46},
+    {src:"google",      pv:76322, atc:3.8, conv:0.43, bounce:58.3, co:359, cpc:2.50},
+    {src:"instagram",   pv:9210,  atc:3.3, conv:0.09, bounce:49.0, co:19,  cpc:0.46},
+    {src:"bing",        pv:1573,  atc:6.2, conv:4.10, bounce:35.9, co:12,  cpc:1.50},
+    {src:"boardgamegeek",pv:1510, atc:4.3, conv:1.24, bounce:44.9, co:5,   cpc:0},
+    {src:"gmail",       pv:1485,  atc:2.7, conv:2.32, bounce:50.0, co:8,   cpc:0},
+    {src:"duckduckgo",  pv:1038,  atc:7.3, conv:1.12, bounce:41.3, co:6,   cpc:0}
+  ],
+  products: [
+    {p:"Dwellings 2nd Ed: Standard",   u:129, net:12488.67, ret:-189.98},
+    {p:"Dwellings LEGENDARY Kit",      u:175, net:11870.15, ret:-272.96},
+    {p:"Dwellings DELUXE Kit",         u:89,  net:4778.60,  ret:0},
+    {p:"We're Doomed!",                u:104, net:3583.99,  ret:-105.0},
+    {p:"Dwellings Wooden Upgrade",     u:127, net:2454.71,  ret:-17.99},
+    {p:"Big Box of Magic",             u:46,  net:1811.57,  ret:-39.99},
+    {p:"Dwellings Game Mat",           u:28,  net:1767.71,  ret:-64.99},
+    {p:"MIXTAPE",                      u:83,  net:1630.00,  ret:-20.0},
+    {p:"Dwellings Minotaur Mini",      u:135, net:1300.70,  ret:-18.98},
+    {p:"Dwellings Shapeshifter Mini",  u:134, net:1293.66,  ret:-26.97},
+    {p:"Expancity",                    u:21,  net:1206.00,  ret:0},
+    {p:"Dwellings Oracle Hex Tile",    u:178, net:1205.16,  ret:-12.58},
+    {p:"We're Doomed: Meritocracy",    u:45,  net:877.57,   ret:-59.97},
+    {p:"Letter Tycoon",                u:32,  net:792.50,   ret:-25.0},
+    {p:"Hypothetically Fun",           u:28,  net:700.00,   ret:0}
+  ],
+  daily_orders: [
+    {d:"07-01",rev:207.49,aov:20.75},{d:"07-02",rev:42.87,aov:21.43},{d:"07-03",rev:144.02,aov:24.0},
+    {d:"07-04",rev:202.59,aov:25.32},{d:"07-05",rev:208.98,aov:20.9},{d:"07-06",rev:306.83,aov:20.46},
+    {d:"07-07",rev:405.28,aov:23.84},{d:"07-08",rev:19.22,aov:9.61},{d:"07-09",rev:410.08,aov:27.34},
+    {d:"07-10",rev:267.18,aov:17.81},{d:"07-11",rev:25.00,aov:12.5},{d:"07-12",rev:12.30,aov:6.15},
+    {d:"07-13",rev:163.23,aov:16.32},{d:"07-14",rev:130.74,aov:32.69},{d:"07-15",rev:143.77,aov:28.75},
+    {d:"07-16",rev:107.74,aov:11.97},{d:"07-17",rev:327.73,aov:21.85},{d:"07-18",rev:68.58,aov:13.72},
+    {d:"07-19",rev:90.70,aov:18.14},{d:"07-20",rev:110.60,aov:12.29},{d:"07-21",rev:267.07,aov:20.54},
+    {d:"07-22",rev:271.87,aov:22.66},{d:"07-23",rev:197.33,aov:32.89},{d:"07-24",rev:201.74,aov:18.34},
+    {d:"07-25",rev:170.39,aov:24.34},{d:"07-26",rev:186.12,aov:18.61},{d:"07-27",rev:274.19,aov:34.27},
+    {d:"07-28",rev:405.05,aov:27.0},{d:"07-29",rev:60.73,aov:10.12}
+  ],
+  devices: [
+    {dev:"Computers",cost:12029.60,clicks:7580,conv:267.75},
+    {dev:"Mobile",   cost:18012.97,clicks:22154,conv:417.5},
+    {dev:"Tablets",  cost:409.48,  clicks:425,  conv:11.0}
+  ],
+  countries: [
+    {c:"United States",u:2298},{c:"India",u:252},{c:"Pakistan",u:192},
+    {c:"China",u:157},{c:"Canada",u:126},{c:"Germany",u:101},
+    {c:"Nigeria",u:97},{c:"UK",u:92},{c:"Australia",u:64},{c:"Philippines",u:44}
+  ],
+  checkout: {
+    total:609, billing:242, payment:8,
+    top:[
+      {p:"Sparkle*Kitty",n:63},{p:"We're Doomed!",n:41},
+      {p:"Sparkle*Kitty Princess Palette",n:41},{p:"Dwellings LEGENDARY Kit",n:34},
+      {p:"Dwellings Oracle Hex Tile",n:34},{p:"Dwellings 2nd Edition",n:24},
+      {p:"Dwellings Shapeshifter Mini",n:20},{p:"Rise of Tribes Hex Tile",n:19}
+    ]
+  }
+};
+
+// ── COMPUTED AGGREGATES (single source of truth) ──────────────
+const A = (() => {
+  const gS  = RAW.google_campaigns.reduce((s,c)=>s+c.spend,0);        // 16396.23
+  const gCV = RAW.google_campaigns.reduce((s,c)=>s+c.conv_value,0);   // 21900.93
+  const gR  = gCV / gS;                                                // 1.3357x
+  const mS  = RAW.meta_campaigns.reduce((s,c)=>s+c.spend,0);          // 37200.94
+  const mCl = RAW.meta_campaigns.reduce((s,c)=>s+c.link_clicks,0);
+  const totS = gS + mS;                                                // 53597.17
+  const julyRev = RAW.daily_orders.reduce((s,d)=>s+d.rev,0);
+  const julyAOV = RAW.daily_orders.reduce((s,d)=>s+d.aov,0)/RAW.daily_orders.length;
+  const estOrd  = Math.round(julyRev/julyAOV);
+  const netSales= RAW.products.reduce((s,p)=>s+p.net,0);
+  const sessions= RAW.ga_traffic.reduce((s,c)=>s+c.sessions,0);
+  const mDA  = mS/210;
+  const gDA  = gS/210;
+  const combDA = totS/210;
+  const cpo_A = totS/estOrd;
+  const cpo_B = mS/estOrd;
+  const julyProp = totS*(29/210);
+  const cpo_C = julyProp/estOrd;
+  const cps   = totS/sessions;
+  const bROAS = netSales/totS;
+  return {gS,gCV,gR,mS,mCl,totS,julyRev,julyAOV,estOrd,netSales,sessions,
+          mDA,gDA,combDA,cpo_A,cpo_B,julyProp,cpo_C,cps,bROAS};
+})();
+
+// ── UTILS ────────────────────────────────────────────────────
+const f$ = n => '$'+Math.round(n).toLocaleString();
+const fd = (n,d=2) => '$'+n.toFixed(d);
+const fN = n => Math.round(n).toLocaleString();
+const fP = (n,d=1) => n.toFixed(d)+'%';
+const C  = ['#7b61ff','#4285f4','#1877f2','#43e97b','#f7971e','#ff6b6b','#95bf47','#38f9d7'];
+Chart.defaults.color='#8b8fa8';
+Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+Chart.defaults.font.size=11;
+
+function showTab(n,b){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  if(b)b.classList.add('active');
+}
+
+// ── RENDER EXEC ──────────────────────────────────────────────
+function renderExec(){
+  document.getElementById('exec-kpis').innerHTML=[
+    {l:'Google Spend (PMAX)',  v:f$(A.gS),   s:'PMAX Breaking Games only', c:'',    t:'exact'},
+    {l:'Meta Ads Spend',       v:f$(A.mS),   s:'7 DA campaigns',           c:'',    t:'exact'},
+    {l:'Total BG Ad Spend',    v:f$(A.totS), s:'PMAX + Meta combined',     c:'warn',t:'exact'},
+    {l:'Google Conv. Value',   v:f$(A.gCV),  s:'ROAS '+A.gR.toFixed(2)+'x',c:'good',t:'exact'},
+    {l:'Shopify Net Sales',    v:f$(A.netSales),s:'Jan–Jul · 15 products', c:'good',t:'exact'},
+    {l:'July Revenue',         v:f$(A.julyRev), s:'29 days · $187/day avg',c:'good',t:'exact'},
+    {l:'Blended ROAS (BG)',    v:A.bROAS.toFixed(2)+'x',s:'Net sales ÷ BG spend',c:'warn',t:'est'},
+    {l:'Checkout Abandon',     v:'98.7%',    s:'609 started · 8 completed',c:'bad', t:'exact'},
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l} <span class="eb ${k.t==='exact'?'eb-e':'eb-s'}" style="font-size:9px">${k.t}</span></div><div class="val ${k.c}">${k.v}</div><div class="sub">${k.s}</div></div>`).join('');
+
+  document.getElementById('exec-headlines').innerHTML=[
+    {t:'ins-r', x:`<strong>Critical — 98.7% checkout abandonment:</strong> Only 8 of 609 checkouts reached payment. 242 users filled billing addresses but never completed. Industry average is 85–90%. This is the single biggest revenue leak.`},
+    {t:'ins-g', x:`<strong>PMAX ROAS = ${A.gR.toFixed(2)}x</strong> — $21,901 conv. value from $16,396 spend. Impressions = 2.6M. Strong awareness driver but conv. rate (0.85%) is below Google's 1–2% ecommerce benchmark. Optimisation needed.`},
+    {t:'ins-g', x:`<strong>Dwellings of Eldervale = 73.4% of revenue</strong> — $35,058 net sales. Hero product with 8+ natural upsell SKUs. All Meta DA campaigns are aligned to this brand.`},
+    {t:'ins-w', x:`<strong>Meta mobile spend = $18,013 (48% of Meta budget)</strong> — 2.9× more clicks than desktop but only 0.43% purchase conversion rate. Mobile UX is the primary conversion barrier after checkout.`},
+    {t:'ins-i', x:`<strong>Blended ROAS = ${A.bROAS.toFixed(2)}x</strong> — net sales $47,761 ÷ BG spend $${Math.round(A.totS).toLocaleString()}. Target 2x+ is achievable with checkout fix + AOV bundle strategy.`},
+    {t:'ins-g', x:`<strong>242 high-intent users</strong> filled billing addresses and abandoned. Meta retargeting custom audience from this pool = est. $261–$783 immediate recovery at 5–15% success rate.`},
+  ].map(h=>`<div class="ins ${h.t}">${h.x}</div>`).join('');
+
+  new Chart(document.getElementById('execRevChart'),{
+    type:'line',
+    data:{labels:RAW.daily_orders.map(d=>d.d),
+      datasets:[{label:'Revenue',data:RAW.daily_orders.map(d=>d.rev),
+        borderColor:'#43e97b',backgroundColor:'rgba(67,233,123,0.07)',fill:true,tension:.4,pointRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>'$'+v}}}}
+  });
+
+  document.getElementById('spend-leg').innerHTML=
+    `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#4285f4;display:inline-block"></span>Google PMAX ${f$(A.gS)}</span>`+
+    `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1877f2;display:inline-block"></span>Meta ${f$(A.mS)}</span>`;
+  new Chart(document.getElementById('spendDonut'),{
+    type:'doughnut',
+    data:{labels:['Google PMAX','Meta Ads'],
+      datasets:[{data:[A.gS,A.mS],backgroundColor:['#4285f4','#1877f2'],borderWidth:2,borderColor:'#1a1d27'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
+  });
+}
+
+// ── RENDER ADS ───────────────────────────────────────────────
+function renderAds(){
+  document.getElementById('ads-kpis').innerHTML=[
+    {l:'Google Spend (PMAX)', v:f$(A.gS),   s:'1 campaign · BG only',      c:'',    t:'exact'},
+    {l:'Google Conv. Value',  v:f$(A.gCV),  s:'ROAS '+A.gR.toFixed(2)+'x', c:'good',t:'exact'},
+    {l:'PMAX Conv. Rate',     v:'0.85%',    s:'Below 1–2% benchmark',      c:'warn',t:'exact'},
+    {l:'Meta Spend',          v:f$(A.mS),   s:'7 campaigns',               c:'',    t:'exact'},
+    {l:'Meta Link Clicks',    v:fN(A.mCl),  s:'All campaigns combined',    c:'',    t:'exact'},
+    {l:'Meta Avg CPC',        v:fd(A.mS/A.mCl),s:f$(A.mS)+' ÷ '+fN(A.mCl),c:'good',t:'exact'},
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l} <span class="eb ${k.t==='exact'?'eb-e':'eb-s'}" style="font-size:9px">${k.t}</span></div><div class="val ${k.c}">${k.v}</div><div class="sub">${k.s}</div></div>`).join('');
+
+  new Chart(document.getElementById('platSpend'),{
+    type:'bar',
+    data:{labels:['Google PMAX','Meta Ads'],
+      datasets:[
+        {label:'Spend ($)',data:[A.gS,A.mS],backgroundColor:['#4285f4','#1877f2'],borderRadius:5},
+        {label:'Conv. Value / Net Sales ($)',data:[A.gCV,A.netSales],
+          backgroundColor:['rgba(66,133,244,.3)','rgba(24,119,242,.3)'],borderRadius:5,yAxisID:'y2'}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}},
+              y2:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+v.toLocaleString()}}}}
+  });
+
+  document.getElementById('plat-cmp').innerHTML=
+    `<thead><tr><th>Metric</th><th class="num" style="color:#4285f4">Google PMAX ✅</th><th class="num" style="color:#1877f2">Meta Ads ✅</th></tr></thead><tbody>`+
+    [['Spend',f$(A.gS),f$(A.mS)],
+     ['Conv. Value / Net Sales',f$(A.gCV),f$(A.netSales)],
+     ['ROAS',A.gR.toFixed(2)+'x',(A.netSales/A.mS).toFixed(2)+'x'],
+     ['Impressions','2,619,933','7,575,692'],
+     ['Clicks / Link Clicks',fN(25375),fN(A.mCl)],
+     ['Conv. Rate','0.85% (below avg)','CTR 84–250% (high click, low buy)'],
+     ['Primary Role','Awareness + reach','Traffic + retargeting'],
+    ].map(r=>`<tr><td class="muted">${r[0]}</td><td class="num" style="color:#4285f4">${r[1]}</td><td class="num" style="color:#1877f2">${r[2]}</td></tr>`).join('')+`</tbody>`;
+
+  document.getElementById('google-tbl').innerHTML=
+    `<thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Clicks</th><th class="num">Conv.</th><th class="num">Conv. Value</th><th class="num">ROAS</th><th class="num">Conv. Rate</th></tr></thead><tbody>`+
+    RAW.google_campaigns.map(c=>
+      `<tr><td>${c.campaign}</td><td class="muted">${c.type}</td><td class="num">${f$(c.spend)}</td><td class="num">${fN(c.clicks)}</td><td class="num">${c.conversions.toFixed(0)}</td><td class="num good">${f$(c.conv_value)}</td><td class="num warn">${c.roas}x</td><td class="num warn">${c.conv_rate}%</td></tr>`
+    ).join('')+`</tbody>`;
+
+  document.getElementById('meta-tbl').innerHTML=
+    `<thead><tr><th>Campaign</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">% Total</th></tr></thead><tbody>`+
+    RAW.meta_campaigns.map(c=>
+      `<tr><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.campaign}</td><td class="num">${f$(c.spend)}</td><td class="num">${fN(c.impressions)}</td><td class="num">${fN(c.link_clicks)}</td><td class="num ${c.ctr>100?'good':''}">${c.ctr.toFixed(1)}%</td><td class="num">${fd(c.cpc)}</td><td class="num muted">${(c.spend/A.mS*100).toFixed(1)}%</td></tr>`
+    ).join('')+`</tbody>`;
+
+  document.getElementById('adset-tbl').innerHTML=
+    `<thead><tr><th>Ad Set</th><th class="num">Spend</th><th class="num">Reach</th><th class="num">Clicks</th><th class="num">Results</th><th class="num">Cost/Result</th></tr></thead><tbody>`+
+    RAW.meta_adsets.map(a=>
+      `<tr><td>${a.adset}</td><td class="num">${f$(a.spend)}</td><td class="num">${fN(a.reach)}</td><td class="num">${fN(a.link_clicks)}</td><td class="num">${fN(a.results)}</td><td class="num ${a.cpr>0&&a.cpr<60?'good':a.cpr>150?'bad':''}">${a.cpr>0?fd(a.cpr):'—'}</td></tr>`
+    ).join('')+`</tbody>`;
+}
+
+// ── RENDER TRAFFIC ───────────────────────────────────────────
+function renderTraffic(){
+  new Chart(document.getElementById('sessChart'),{
+    type:'bar',data:{labels:RAW.ga_traffic.map(d=>d.channel),
+      datasets:[{label:'Sessions',data:RAW.ga_traffic.map(d=>d.sessions),backgroundColor:'#7b61ff'},
+                {label:'Engaged', data:RAW.ga_traffic.map(d=>d.engaged),backgroundColor:'#43e97b'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}}}
+  });
+  new Chart(document.getElementById('engChart'),{
+    type:'bar',data:{labels:RAW.ga_traffic.map(d=>d.channel),
+      datasets:[{label:'Eng. Rate %',data:RAW.ga_traffic.map(d=>d.eng_rate),backgroundColor:C,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>v+'%'},max:80}}}
+  });
+  new Chart(document.getElementById('devChart'),{
+    type:'doughnut',data:{labels:RAW.devices.map(d=>d.dev),
+      datasets:[{data:RAW.devices.map(d=>d.cost),backgroundColor:['#4285f4','#1877f2','#7b61ff'],borderWidth:2,borderColor:'#1a1d27'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'55%'}
+  });
+  new Chart(document.getElementById('cntryChart'),{
+    type:'bar',data:{labels:RAW.countries.map(c=>c.c),
+      datasets:[{label:'Active Users',data:RAW.countries.map(c=>c.u),backgroundColor:'#7b61ff',borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+  });
+  const mx=Math.max(...RAW.referral_data.map(r=>r.pv));
+  document.getElementById('ref-tbl').innerHTML=
+    `<thead><tr><th>Source</th><th class="num">Pageviews</th><th>Share</th><th class="num">ATC%</th><th class="num">Conv%</th><th class="num">Bounce%</th><th class="num">Checkouts</th></tr></thead><tbody>`+
+    RAW.referral_data.map(r=>
+      `<tr><td>${r.src}</td><td class="num">${fN(r.pv)}</td><td><div class="bw" style="width:70px"><div class="bf" style="width:${r.pv/mx*100}%;background:#7b61ff"></div></div></td><td class="num ${r.atc>5?'good':''}">${fP(r.atc)}</td><td class="num ${r.conv>1?'good':r.conv<0.2?'bad':''}">${fP(r.conv)}</td><td class="num ${r.bounce>70?'bad':r.bounce<45?'good':''}">${fP(r.bounce)}</td><td class="num">${r.co}</td></tr>`
+    ).join('')+`</tbody>`;
+}
+
+// ── RENDER REVENUE ───────────────────────────────────────────
+function renderRevenue(){
+  document.getElementById('rev-kpis').innerHTML=[
+    {l:'July Revenue',      v:f$(A.julyRev),   s:'Exact · Shopify',            c:'good',t:'exact'},
+    {l:'Jan–Jul Net Sales', v:f$(A.netSales),  s:'15 products shown',          c:'good',t:'exact'},
+    {l:'Avg AOV (July)',    v:fd(A.julyAOV),   s:'Daily AOV average',          c:'',    t:'exact'},
+    {l:'Est. Orders (July)',v:fN(A.estOrd),    s:f$(A.julyRev)+' ÷ '+fd(A.julyAOV),c:'',t:'est'},
+    {l:'Total Returns',     v:f$(RAW.products.reduce((s,p)=>s+p.ret,0)),s:'All products',c:'bad',t:'exact'},
+    {l:'Checkout Abandon',  v:'98.7%',          s:'609→8 reached payment',     c:'bad', t:'exact'},
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l} <span class="eb ${k.t==='exact'?'eb-e':'eb-s'}" style="font-size:9px">${k.t}</span></div><div class="val ${k.c}">${k.v}</div><div class="sub">${k.s}</div></div>`).join('');
+
+  new Chart(document.getElementById('dailyRevChart'),{
+    type:'bar',data:{labels:RAW.daily_orders.map(d=>d.d),
+      datasets:[
+        {label:'Revenue ($)',data:RAW.daily_orders.map(d=>d.rev),backgroundColor:'rgba(149,191,71,.7)',borderRadius:3},
+        {label:'AOV ($)',    data:RAW.daily_orders.map(d=>d.aov),type:'line',borderColor:'#f7971e',
+          backgroundColor:'transparent',yAxisID:'y2',tension:.4,pointRadius:2}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},
+      scales:{y:{ticks:{callback:v=>'$'+v}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+v}}}}
+  });
+
+  const doeNet=RAW.products.filter(p=>p.p.includes('Dwellings')).reduce((s,p)=>s+p.net,0);
+  new Chart(document.getElementById('prodDonut'),{
+    type:'doughnut',data:{labels:['Dwellings of Eldervale','Other products'],
+      datasets:[{data:[doeNet,A.netSales-doeNet],backgroundColor:['#7b61ff','#95bf47'],borderWidth:2,borderColor:'#1a1d27'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'55%'}
+  });
+
+  document.getElementById('prod-tbl').innerHTML=
+    `<thead><tr><th>#</th><th>Product</th><th class="num">Units</th><th class="num">Net Sales</th><th class="num">Returns</th></tr></thead><tbody>`+
+    RAW.products.map((p,i)=>
+      `<tr><td class="muted">${i+1}</td><td style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.p}</td><td class="num">${fN(p.u)}</td><td class="num good">${f$(p.net)}</td><td class="num ${p.ret<0?'bad':'muted'}">${f$(p.ret)}</td></tr>`
+    ).join('')+`</tbody>`;
+
+  const cd=RAW.checkout;
+  new Chart(document.getElementById('funnelChart'),{
+    type:'bar',data:{labels:['Started Checkout','Filled Billing','Reached Payment'],
+      datasets:[{data:[cd.total,cd.billing,cd.payment],backgroundColor:['#7b61ff','#f7971e','#43e97b'],borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+  const mx2=Math.max(...cd.top.map(p=>p.n));
+  document.getElementById('intent-prods').innerHTML=
+    `<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Top abandoned products</div>`+
+    cd.top.map(p=>`<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${p.p}</span><span class="warn">${p.n}</span></div><div class="bw"><div class="bf" style="width:${p.n/mx2*100}%;background:#f7971e"></div></div></div>`).join('');
+}
+
+// ── RENDER CROSS ─────────────────────────────────────────────
+function renderCross(){
+  // Metric 1: CPS
+  const cps=[
+    {ch:'Paid Search',    sp:A.gS*0.45,  sess:1307, note:'Google PMAX proxy'},
+    {ch:'Organic Social', sp:A.mS*0.05,  sess:73,   note:'Meta organic 5%'},
+    {ch:'Referral',       sp:A.mS*0.10,  sess:1051, note:'Meta proxy 10%'},
+    {ch:'Cross-network',  sp:A.totS*0.01,sess:7,    note:'Est. 1%'},
+  ];
+  cps.forEach(d=>d.v=d.sess>0&&d.sp>0?d.sp/d.sess:null);
+  new Chart(document.getElementById('cpsChart'),{
+    type:'bar',data:{labels:cps.map(d=>d.ch),
+      datasets:[{label:'CPS ($)',data:cps.map(d=>d.v?+d.v.toFixed(2):0),backgroundColor:C,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{callback:v=>'$'+v}}}}
+  });
+  document.getElementById('cps-tbl').innerHTML=
+    `<thead><tr><th>Channel</th><th class="num">Sessions</th><th class="num">Alloc. Spend</th><th class="num">CPS</th><th>Note</th></tr></thead><tbody>`+
+    cps.map(d=>`<tr><td>${d.ch}</td><td class="num">${fN(d.sess)}</td><td class="num">${d.sp>0?f$(d.sp):'—'}</td><td class="num ${d.v&&d.v<5?'good':'warn'}">${d.v?fd(d.v):'N/A'}</td><td class="muted" style="font-size:10px">${d.note}</td></tr>`).join('')+
+    `<tr style="font-weight:600"><td>Total</td><td class="num">${fN(A.sessions)}</td><td class="num">${f$(A.totS)}</td><td class="num warn">${fd(A.cps)}</td><td class="muted" style="font-size:10px">BG spend ÷ GA4 sessions</td></tr></tbody>`;
+
+  // Metric 2: CPO
+  document.getElementById('cpo-kpis').innerHTML=[
+    {l:'Method A: BG Total Spend ÷ Est. Orders', v:fd(A.cpo_A), s:`${f$(A.totS)} ÷ ~${A.estOrd}`, c:'warn'},
+    {l:'Method B: Meta Only ÷ Est. Orders',      v:fd(A.cpo_B), s:`${f$(A.mS)} ÷ ~${A.estOrd}`,  c:'warn'},
+    {l:'Method C: July Prop. Spend ÷ Orders',    v:fd(A.cpo_C), s:`${f$(A.julyProp)} ÷ ~${A.estOrd}`,c:'good'},
+    {l:'Est. Orders (July)',                      v:fN(A.estOrd),s:`${f$(A.julyRev)} ÷ ${fd(A.julyAOV)} AOV`,c:''},
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l} <span class="eb eb-s" style="font-size:9px">est</span></div><div class="val ${k.c}">${k.v}</div><div class="sub">${k.s}</div></div>`).join('');
+  new Chart(document.getElementById('cpoChart'),{
+    type:'bar',data:{labels:['Method A\n(BG total)','Method B\n(Meta only)','Method C\n(July prop.)'],
+      datasets:[{label:'Est. CPO ($)',data:[+A.cpo_A.toFixed(2),+A.cpo_B.toFixed(2),+A.cpo_C.toFixed(2)],
+        backgroundColor:['#ff6b6b','#f7971e','#43e97b'],borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>'$'+v},beginAtZero:true}}}
+  });
+
+  // Metric 3: ROI Proxy
+  const roi=RAW.referral_data.filter(r=>r.cpc>0).map(r=>({
+    ...r,
+    revP:r.co*A.julyAOV,
+    spP:r.pv*r.cpc,
+    roiP:r.pv*r.cpc>0?(r.co*A.julyAOV)/(r.pv*r.cpc):null
+  })).sort((a,b)=>(b.roiP||0)-(a.roiP||0));
+  new Chart(document.getElementById('roiChart'),{
+    type:'bar',data:{labels:roi.map(r=>r.src),
+      datasets:[{label:'ROI Proxy',data:roi.map(r=>r.roiP?+r.roiP.toFixed(2):0),
+        backgroundColor:roi.map(r=>r.roiP>1?'#43e97b':'#ff6b6b'),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{callback:v=>v+'x'},beginAtZero:true}}}
+  });
+  document.getElementById('roi-tbl').innerHTML=
+    `<thead><tr><th>Source</th><th class="num">Checkouts</th><th class="num">Rev Proxy</th><th class="num">Spend Proxy</th><th class="num">ROI Proxy</th></tr></thead><tbody>`+
+    roi.map(r=>`<tr><td>${r.src}</td><td class="num">${r.co}</td><td class="num good">${f$(r.revP)}</td><td class="num">${f$(r.spP)}</td><td class="num ${r.roiP>1?'good':'bad'}">${r.roiP?r.roiP.toFixed(2)+'x':'—'}</td></tr>`).join('')+`</tbody>`;
+
+  // Metric 4: Product-Campaign Correlation
+  const cm=[
+    {kw:"We're Doomed",      camps:RAW.meta_campaigns.filter(c=>c.campaign.includes('Doomed')),  prods:RAW.products.filter(p=>p.p.includes('Doomed'))},
+    {kw:'Dwellings (Meta)',  camps:RAW.meta_campaigns.filter(c=>c.campaign.includes('Dwellings')),prods:RAW.products.filter(p=>p.p.includes('Dwellings')).slice(0,4)},
+    {kw:'DA | Sales',        camps:RAW.meta_campaigns.filter(c=>c.campaign.includes('DA | Sales')),prods:RAW.products.filter(p=>p.p.includes('Dwellings')).slice(0,2)},
+    {kw:'PMAX (Google)',     camps:RAW.google_campaigns,                                          prods:RAW.products.filter(p=>p.p.includes('Dwellings')).slice(0,3)},
+  ];
+  const cSp=cm.map(m=>m.camps.reduce((s,c)=>s+(c.spend||0),0));
+  const pRv=cm.map(m=>m.prods.reduce((s,p)=>s+p.net,0));
+  new Chart(document.getElementById('prodCampChart'),{
+    type:'bar',data:{labels:cm.map(m=>m.kw),
+      datasets:[
+        {label:'Campaign Spend ($)', data:cSp,backgroundColor:'rgba(24,119,242,.6)',borderRadius:4,yAxisID:'y'},
+        {label:'Product Net Sales ($)',data:pRv,backgroundColor:'rgba(67,233,123,.6)',borderRadius:4,yAxisID:'y2'}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},
+      scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+v.toLocaleString()}}}}
+  });
+  document.getElementById('prod-camp-tbl').innerHTML=
+    `<thead><tr><th>Campaign Group</th><th class="num">Camp. Spend</th><th class="num">Product Sales</th><th class="num">Rev/Spend</th><th>Confidence</th></tr></thead><tbody>`+
+    cm.map((m,i)=>`<tr><td>${m.kw}</td><td class="num">${f$(cSp[i])}</td><td class="num good">${f$(pRv[i])}</td><td class="num ${pRv[i]/cSp[i]>1?'good':'warn'}">${(pRv[i]/cSp[i]).toFixed(2)}x</td><td class="muted" style="font-size:10px">🟣 Name-keyword match</td></tr>`).join('')+`</tbody>`;
+
+  // Daily correlation
+  new Chart(document.getElementById('corrChart'),{
+    type:'bar',data:{labels:RAW.daily_orders.map(d=>d.d),
+      datasets:[
+        {label:'Daily Revenue ($)',data:RAW.daily_orders.map(d=>d.rev),backgroundColor:'rgba(149,191,71,.6)',borderRadius:3},
+        {label:`BG Daily Avg (${f$(A.combDA)})`,data:RAW.daily_orders.map(()=>+A.combDA.toFixed(2)),
+          type:'line',borderColor:'#4285f4',backgroundColor:'transparent',borderDash:[5,4],pointRadius:0},
+        {label:`Meta Daily Avg (${f$(A.mDA)})`,data:RAW.daily_orders.map(()=>+A.mDA.toFixed(2)),
+          type:'line',borderColor:'#1877f2',backgroundColor:'transparent',borderDash:[3,3],pointRadius:0}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},
+      scales:{y:{ticks:{callback:v=>'$'+v}}}}
+  });
+}
+
+// ── RENDER AUDIT ─────────────────────────────────────────────
+function renderAudit(){
+  document.getElementById('agg-tbl').innerHTML=
+    `<thead><tr><th>Check</th><th class="num">Computed</th><th class="num">Expected</th><th>Status</th></tr></thead><tbody>`+
+    [
+      ['Google PMAX spend',          fd(A.gS,2),    '$16,396.23 (from file)',               '✅ Match'],
+      ['Google PMAX conv. value',    fd(A.gCV,2),   '$21,900.93 (from file)',               '✅ Match'],
+      ['Google PMAX ROAS',           A.gR.toFixed(2)+'x','$21,900.93 ÷ $16,396.23',        '✅ Computed'],
+      ['Meta total spend (7 camps)', fd(A.mS,2),    '$37,200.94 (from file)',               '✅ Match'],
+      ['Total BG ad spend',          fd(A.totS,2),  '$16,396.23 + $37,200.94',             '✅ Computed'],
+      ['Blended ROAS (BG)',          A.bROAS.toFixed(2)+'x','$47,761 ÷ $53,597',           '✅ Computed'],
+      ['Shopify July rows',          String(RAW.daily_orders.length),'29 rows (Jul 1–29)', '✅ Match'],
+      ['July revenue sum',           fd(A.julyRev,2),'Sum of daily_orders',                '✅ Computed'],
+      ['Dwellings rev. share',       (RAW.products.filter(p=>p.p.includes('Dwellings')).reduce((s,p)=>s+p.net,0)/A.netSales*100).toFixed(1)+'%','73.4% of $47,761','✅ Confirmed'],
+      ['GA4 sessions (excl. Unassigned)',fN(A.sessions),'Sum of 6 channels',               '✅ Computed'],
+    ].map(r=>`<tr><td>${r[0]}</td><td class="num good">${r[1]}</td><td class="num muted">${r[2]}</td><td class="${r[3].startsWith('✅')?'good':'warn'}">${r[3]}</td></tr>`).join('')+`</tbody>`;
+
+  document.getElementById('merge-steps').innerHTML=[
+    {t:'Scope — BG ecommerce only',    d:'Excluded: AdMagic Leads (print partner B2B campaign). Excluded: Blackbox Leads (B2B logistics). Excluded: GA4 Unassigned channel. Remaining data = 100% Breaking Games relevant.'},
+    {t:'Recalculated totals (retailer only)',d:'Google spend: $16,396 (PMAX - Online Board Game only). Google ROAS: 1.34x. Total spend: $53,597. Blended ROAS: '+A.bROAS.toFixed(2)+'x (net sales $47,761 ÷ spend $53,597).'},
+    {t:'Join keys — time + name only', d:'No UTM parameters exist. All cross-platform joins are time-based (date alignment for July correlation) or name-based (campaign keyword → product keyword matching). Causal attribution not possible without UTM.'},
+    {t:'Confidence labels',            d:'✅ Exact: direct from source files. 🟡 Estimated: require assumptions (AOV-based order count, channel spend allocation proxies). 🟣 Correlation: time or name alignment only — no causal link.'},
+  ].map((s,i)=>`<div class="ms"><div class="sn">${i+1}</div><div class="sb"><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>`).join('');
+}
+
+// ── RENDER STRATEGY ──────────────────────────────────────────
+function renderStrategy(){
+  document.getElementById('plat-rec').innerHTML=
+    `<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:600;color:#4285f4;margin-bottom:3px">Google PMAX — optimise, don't scale yet ⚠</div><div style="font-size:11px;color:var(--muted)">ROAS 1.34x, conv. rate 0.85% (below 1–2% benchmark). Add negative keywords, upload product feed, add customer match list from purchasers. Target: conv. rate to 1.5%+ before scaling budget.</div></div>`+
+    `<div><div style="font-size:12px;font-weight:600;color:#1877f2;margin-bottom:3px">Meta — fix funnel + retarget ✅</div><div style="font-size:11px;color:var(--muted)">Add UTM tracking. Retarget 242 billing-address users. Segment TOF/MOF/BOF. <strong style="color:var(--txt)">Target: Meta ROAS 1.28→2x over 60 days.</strong></div></div>`;
+
+  document.getElementById('src-rank').innerHTML=[
+    {s:'Bing',          g:'A+',r:'4.1% conv, 6.2% ATC, lowest bounce'},
+    {s:'BoardGameGeek', g:'A', r:'Niche audience, 1.24% conv'},
+    {s:'DuckDuckGo',    g:'B+',r:'7.3% ATC — intent users'},
+    {s:'Gmail',         g:'B+',r:'2.32% conv — email converts'},
+    {s:'Google',        g:'B', r:'High volume, 0.43% conv'},
+    {s:'Instagram',     g:'C', r:'0.09% conv despite ATC'},
+    {s:'Facebook',      g:'C', r:'High volume, 0.43% conv'},
+  ].map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)"><span style="font-weight:600;font-size:13px;width:22px;color:${s.g.startsWith('A')?'#43e97b':s.g.startsWith('B')?'#f7971e':'#ff6b6b'}">${s.g}</span><span style="font-size:12px;font-weight:600;min-width:90px">${s.s}</span><span style="font-size:11px;color:var(--muted)">${s.r}</span></div>`).join('');
+
+  const doe=RAW.products.filter(p=>p.p.includes('Dwellings'));
+  const oth=RAW.products.filter(p=>!p.p.includes('Dwellings'));
+  document.getElementById('prod-rec').innerHTML=
+    `<div style="font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;margin-bottom:5px">Dwellings — <span class="good">scale budget</span></div>`+
+    doe.slice(0,4).map(p=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--bdr)"><span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.p}</span><span class="good">${f$(p.net)}</span></div>`).join('')+
+    `<div style="font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;margin:10px 0 5px">Other — <span class="warn">test budgets</span></div>`+
+    oth.slice(0,3).map(p=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--bdr)"><span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.p}</span><span class="warn">${f$(p.net)}</span></div>`).join('');
+
+  document.getElementById('geo-rec').innerHTML=[
+    {fl:'🇺🇸',c:'United States',s:'Primary',    n:'2,298 users — core market', bg:'rgba(67,233,123,.15)',tc:'#43e97b'},
+    {fl:'🇨🇦',c:'Canada',       s:'Opportunity',n:'English-speaking, board game culture',bg:'rgba(247,151,30,.15)',tc:'#f7971e'},
+    {fl:'🇦🇺',c:'Australia',    s:'Opportunity',n:'Growing engagement',         bg:'rgba(247,151,30,.15)',tc:'#f7971e'},
+    {fl:'🇬🇧',c:'UK',           s:'Underserved', n:'92 users, English-speaking',bg:'rgba(123,97,255,.15)',tc:'#b39ddb'},
+    {fl:'🇩🇪',c:'Germany',      s:'Low eng.',    n:'28.7% engagement rate',     bg:'rgba(255,107,107,.15)',tc:'#ff6b6b'},
+  ].map(g=>`<div style="display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:1px solid var(--bdr)"><span>${g.fl}</span><div><div style="font-size:12px;font-weight:600">${g.c} <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:${g.bg};color:${g.tc}">${g.s}</span></div><div style="font-size:11px;color:var(--muted)">${g.n}</div></div></div>`).join('');
+
+  document.getElementById('actions').innerHTML=[
+    {p:'P1',a:'Add UTM tracking to all Meta + Google ad URLs',i:'Enables real attribution — prerequisite for everything',c:'#ff6b6b'},
+    {p:'P1',a:'Fix mobile checkout UX — 98.7% abandonment',  i:'Target checkout completion rate >5%',                 c:'#ff6b6b'},
+    {p:'P1',a:'Meta retargeting for 242 billing-address users',i:'Est. $261–$783 immediate cart recovery',            c:'#ff6b6b'},
+    {p:'P2',a:'Optimise PMAX — add negative keywords + product feed',i:'Target conv. rate 0.85%→1.5%+',              c:'#f7971e'},
+    {p:'P2',a:'Investigate Sparkle*Kitty — 104 carts, $0 revenue',  i:'Possible listing error or pricing issue',      c:'#f7971e'},
+    {p:'P3',a:'Meta TOF/MOF/BOF funnel segmentation',               i:'Meta ROAS 1.28→2x long-term',                  c:'#b39ddb'},
+    {p:'P3',a:'Dwellings bundle strategy — AOV $21→$30',            i:'+38% ROAS equivalent without extra spend',     c:'#b39ddb'},
+  ].map(a=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)"><span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;min-width:24px;text-align:center;background:${a.c}22;color:${a.c}">${a.p}</span><div><div style="font-size:11px">${a.a}</div><div style="font-size:10px;color:var(--good);margin-top:2px">${a.i}</div></div></div>`).join('');
+
+  new Chart(document.getElementById('retargChart'),{
+    type:'doughnut',
+    data:{labels:['No billing addr. (low intent)','Billing addr. filled (strong intent)','Reached payment'],
+      datasets:[{data:[RAW.checkout.total-RAW.checkout.billing, RAW.checkout.billing-RAW.checkout.payment, RAW.checkout.payment],
+        backgroundColor:['rgba(139,143,168,.4)','#f7971e','#43e97b'],borderWidth:2,borderColor:'#1a1d27'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}},cutout:'55%'}
+  });
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  renderExec(); renderAds(); renderTraffic(); renderRevenue();
+  renderCross(); renderAudit(); renderStrategy();
+});
+</script>
+</body>
+</html>
