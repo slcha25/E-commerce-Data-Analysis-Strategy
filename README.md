@@ -1,4 +1,4 @@
-# 🎲 Online Board Game Retailer — E-Commerce & Marketing Data Analysis Externship
+# 🎲 E-Commerce & Marketing Data Analysis Externship for online board game retailer
 ### A 7-Project Externship — Diagnosing a Real E-Commerce Company's Ad-to-Sale Funnel
 
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=flat-square)
