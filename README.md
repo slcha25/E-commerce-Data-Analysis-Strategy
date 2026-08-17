@@ -2,7 +2,7 @@
 ### A 7-Project Externship — Diagnosing a Real E-Commerce Company's Ad-to-Sale Funnel
 
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=flat-square)
-![Duration](https://img.shields.io/badge/Duration-2%20Weeks-blue?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-7%20Weeks-blue?style=flat-square)
 ![Role](https://img.shields.io/badge/Role-Marketing%20Data%20Analyst%20Extern-orange?style=flat-square)
 ![Stack](https://img.shields.io/badge/Stack-Google%20Analytics%20%7C%20Google%20Ads%20%7C%20Meta%20Ads%20%7C%20Shopify%20%7C%20Claude%20AI-informational?style=flat-square)
 ![Data](https://img.shields.io/badge/Data-Real%20%26%20Anonymized-lightgrey?style=flat-square)
