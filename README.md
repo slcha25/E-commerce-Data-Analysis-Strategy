@@ -8,6 +8,7 @@
 ![Data](https://img.shields.io/badge/Data-Real%20%26%20Anonymized-lightgrey?style=flat-square)
 
 > *"Getting traffic is easy; turning it into sales is the hard part."*
+
 > Seven projects, four data platforms, one real online board game company's sales funnel — pulled apart, diagnosed, and put back together into a growth strategy.
 
 > **A note on confidentiality**: This externship used a real company's live operational data under an NDA. Per the externship's terms, I can share the analysis, methodology, and findings — but not the client's name or any identifying details. Throughout this README, the company is referred to only as **"the Client."**
@@ -50,7 +51,6 @@ The four deliverables below are interactive web pages. Open them through **GitHu
 
 [▶ Watch the dashboard explanation on YouTube](https://youtu.be/CUBsA6Djgbs)
 
-> Click either thumbnail to open the video on YouTube. GitHub README files do not support an embedded YouTube player, so a clickable thumbnail is the most reliable presentation method.
 
 ---
 
@@ -68,15 +68,18 @@ The four deliverables below are interactive web pages. Open them through **GitHu
 
 ## 🗺️ The Analysis Pipeline — Ad Click to Growth Strategy
 
-Each project moved the work one stage further down the funnel — from raw exports to a boardroom-ready recommendation. No single platform tells the whole story; each stage below closes a gap the previous one leaves open.
 
-```
- [1] COLLECT           [2] CLEAN & CALCULATE      [3] ANALYZE PER-PLATFORM        [4] CONSOLIDATE (AI)         [5] DIAGNOSE              [6] COMMUNICATE
- Raw Exports      ──▶   Sheets / Excel        ──▶  GA · Ads · Shopify        ──▶  Claude AI Dashboard    ──▶   Cross-Funnel Insight ──▶  Slides Presentation
- (GA, Ads,               Filter · Sort               Traffic · Engagement          Consolidated funnel          Where budget should         Executive Summary →
-  Shopify)                Formulas · Charts           Ad Efficiency · Funnel        view across platforms        move, and why                Challenge → Insights →
-                                                        Drop-off                                                                                Recommendations → Roadmap
-```
+### Each project moved the work one stage further down the funnel—from raw exports to a boardroom-ready recommendation.
+
+
+<p align="center">
+  <img
+    src="Project folder/analysis-pipeline.svg"
+    alt="Six-stage ecommerce analysis pipeline from data collection to growth strategy"
+    width="100%"
+  >
+</p>
+
 
 | # | Stage | Tool / Platform | What Happens |
 |---|---|---|---|
@@ -87,7 +90,9 @@ Each project moved the work one stage further down the funnel — from raw expor
 | **5** | **Diagnose** | Cross-platform synthesis | Turn scattered per-platform findings into a single view of where the funnel leaks and why |
 | **6** | **Communicate** | Google Slides | Package 2–3 data-backed recommendations into a strategic story for a non-analyst audience |
 
-> **Why not just merge everything?** Shopify labels all traffic "web," Google Ads and Meta Ads use different attribution windows (30-day last-click vs. 7-day click/1-day view), and none of the platforms share a transaction ID. Part of the actual skill being tested here was knowing **what can't be perfectly measured** — and building a credible story anyway.
+> **Why not just merge everything?**
+
+> Shopify labels all traffic "web," Google Ads and Meta Ads use different attribution windows (30-day last-click vs. 7-day click/1-day view), and none of the platforms share a transaction ID. Part of the actual skill being tested here was knowing **what can't be perfectly measured** — and building a credible story anyway.
 
 ---
 
@@ -98,7 +103,7 @@ Each project moved the work one stage further down the funnel — from raw expor
 | **3 — Google Analytics** | [Weak Landing Page Fixes (Doc)](https://docs.google.com/document/d/1pVzPqooBN8rQF7ODPyIJsZgoYKfsGB6g3_R3n5BqdX4/edit?tab=t.0) | Identified 3 underperforming product landing pages and one case of likely referrer-spam traffic (an unrelated retailer referring visitors to `/search`) — a mismatch that would have wasted optimization effort if not flagged |
 | **4 — Google Ads vs. Meta Ads** | [Channel Comparison & Recommendations (Doc)](https://docs.google.com/document/d/1NIHchnVt4yNn_roF6VxupDZy3toeG9wWmsvWf_FJOQw/edit?usp=sharing) | Flagged the attribution-window mismatch (Google: 30-day last-click vs. Meta: 7-day click) before comparing platforms, then recommended shifting more budget toward Meta for traffic/conversion volume while keeping Google for its stronger real-sale ROAS |
 | **5 — Shopify Funnel** | Shopify Funnel Report | Diagnosed checkout completion and cart-abandonment rates against store benchmarks, and identified which products carried the store's revenue vs. which were dragging on inventory |
-| **6 — Cross-Platform Dashboard** | [Claude AI Dashboard (Artifact)](https://claude.ai/public/artifacts/3903d819-ef34-4b31-a789-dd8c0cc16e6d) | Meta Ads drives the highest traffic but the lowest conversion — recommended retargeting that campaign. Google Ads and Bing show higher purchase intent (Bing: 4.1% conversion rate; paid search sessions: 60.2% engagement) but are underinvested — recommended reallocating $1,000–$2,000 of budget toward Google Ads and Bing |
+| **6 — Cross-Platform Dashboard** | [Claude AI Dashboard (Artifact)](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b) | Meta Ads drives the highest traffic but the lowest conversion — recommended retargeting that campaign. Google Ads and Bing show higher purchase intent (Bing: 4.1% conversion rate; paid search sessions: 60.2% engagement) but are underinvested — recommended reallocating $1,000–$2,000 of budget toward Google Ads and Bing |
 | **7 — Growth Strategy** | Final Slides Presentation | Synthesized all of the above into a business-ready narrative: Executive Summary → Challenge → Insights → Recommendations → Roadmap |
 
 ---
@@ -120,7 +125,6 @@ Each project moved the work one stage further down the funnel — from raw expor
 Online Board Game Retailer /
 ├── docs/
 │   ├── cross-platform-dashboard.html                                  — Interactive cross-platform dashboard
-│   ├── dashboard-presentation.html                                    — Project 6 dashboard presentation
 │   ├── strategy-report.html                                           — Full strategy report
 │   └── final-presentation.html                                        — Project 7 final presentation
 ├── Project 1 Explore How Business Drive Online Sales/                      — Customer journey & sales funnel foundations
@@ -186,7 +190,7 @@ Online Board Game Retailer /
 - Filtered every dataset down to the Client's own campaigns only, explicitly excluding two affiliated but out-of-scope brands present in the raw exports
 - Used **Claude AI** to consolidate, summarize, and visualize the aligned dataset into a single cross-platform funnel dashboard
 - **Key insight surfaced**: Meta Ads drives the highest traffic but the lowest conversion (candidate for retargeting); Google Ads and Bing show stronger purchase intent (Bing: 4.1% conversion; paid search sessions: 60.2% engagement) but are underinvested — recommended shifting **$1,000–$2,000** of budget toward Google Ads and Bing
-- **Deliverable**: [Cross-Platform Funnel Dashboard (Claude AI Artifact)](https://claude.ai/public/artifacts/3903d819-ef34-4b31-a789-dd8c0cc16e6d)
+- **Deliverable**: [Cross-Platform Funnel Dashboard (Claude AI Artifact)](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b)
 
 ### Project 7 — Turn Your Findings Into a Growth Strategy & Presentation
 **From analysis to a story a marketing team would actually act on.**
