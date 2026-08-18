@@ -103,7 +103,7 @@ The four deliverables below are interactive web pages. Open them through **GitHu
 | **3 — Google Analytics** | [Weak Landing Page Fixes (Doc)](https://docs.google.com/document/d/1pVzPqooBN8rQF7ODPyIJsZgoYKfsGB6g3_R3n5BqdX4/edit?tab=t.0) | Identified 3 underperforming product landing pages and one case of likely referrer-spam traffic (an unrelated retailer referring visitors to `/search`) — a mismatch that would have wasted optimization effort if not flagged |
 | **4 — Google Ads vs. Meta Ads** | [Channel Comparison & Recommendations (Doc)](https://docs.google.com/document/d/1NIHchnVt4yNn_roF6VxupDZy3toeG9wWmsvWf_FJOQw/edit?usp=sharing) | Flagged the attribution-window mismatch (Google: 30-day last-click vs. Meta: 7-day click) before comparing platforms, then recommended shifting more budget toward Meta for traffic/conversion volume while keeping Google for its stronger real-sale ROAS |
 | **5 — Shopify Funnel** | Shopify Funnel Report | Diagnosed checkout completion and cart-abandonment rates against store benchmarks, and identified which products carried the store's revenue vs. which were dragging on inventory |
-| **6 — Cross-Platform Dashboard** | [Claude AI Dashboard (Artifact)](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b) | Meta Ads drives the highest traffic but the lowest conversion — recommended retargeting that campaign. Google Ads and Bing show higher purchase intent (Bing: 4.1% conversion rate; paid search sessions: 60.2% engagement) but are underinvested — recommended reallocating $1,000–$2,000 of budget toward Google Ads and Bing |
+| **6 — Cross-Platform Dashboard** | [Dashboard](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b) | Meta Ads drives the highest traffic but the lowest conversion — recommended retargeting that campaign. Google Ads and Bing show higher purchase intent (Bing: 4.1% conversion rate; paid search sessions: 60.2% engagement) but are underinvested — recommended reallocating $1,000–$2,000 of budget toward Google Ads and Bing |
 | **7 — Growth Strategy** | Final Slides Presentation | Synthesized all of the above into a business-ready narrative: Executive Summary → Challenge → Insights → Recommendations → Roadmap |
 
 ---
@@ -190,7 +190,7 @@ Online Board Game Retailer /
 - Filtered every dataset down to the Client's own campaigns only, explicitly excluding two affiliated but out-of-scope brands present in the raw exports
 - Used **Claude AI** to consolidate, summarize, and visualize the aligned dataset into a single cross-platform funnel dashboard
 - **Key insight surfaced**: Meta Ads drives the highest traffic but the lowest conversion (candidate for retargeting); Google Ads and Bing show stronger purchase intent (Bing: 4.1% conversion; paid search sessions: 60.2% engagement) but are underinvested — recommended shifting **$1,000–$2,000** of budget toward Google Ads and Bing
-- **Deliverable**: [Cross-Platform Funnel Dashboard (Claude AI Artifact)](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b)
+- **Deliverable**: [Cross-Platform Funnel Dashboard](https://claude.ai/public/artifacts/cd2765db-88d4-4b6a-aff5-41b3ca6ec57b)
 
 ### Project 7 — Turn Your Findings Into a Growth Strategy & Presentation
 **From analysis to a story a marketing team would actually act on.**
