@@ -28,28 +28,11 @@ Working alone through raw, messy, real-world exports — the kind where Shopify 
 
 The four deliverables below are interactive web pages. Open them through **GitHub Pages** to use their tabs, navigation, charts, and presentation controls.
 
-> **GitHub Pages setup:** Replace `YOUR-GITHUB-USERNAME` and `YOUR-REPOSITORY` in the links below with your actual GitHub username and repository name. Then enable Pages from the repository's `/docs` folder by following the setup instructions below.
-
 | Interactive deliverable | Description | Links |
 |---|---|---|
-| **Cross-Platform Dashboard** | Explore advertising, traffic, conversion, revenue, data-audit, and strategic-insight tabs. | [▶ Open Live Dashboard](https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/docs/cross-platform-dashboard.html) · [View HTML Source](docs/cross-platform-dashboard.html) |
-| **Dashboard Presentation** | A presentation-style walkthrough of the Project 6 dashboard findings. | [▶ Open Presentation](https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/docs/dashboard-presentation.html) · [View HTML Source](docs/dashboard-presentation.html) |
-| **Strategy Report** | Read the complete cross-platform analysis, limitations, insights, and recommendations. | [▶ Open Strategy Report](https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/docs/strategy-report.html) · [View HTML Source](docs/strategy-report.html) |
-| **Final Growth Strategy Presentation** | Navigate the final Project 7 presentation in a full-screen interactive format. | [▶ Open Final Presentation](https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/docs/final-presentation.html) · [View HTML Source](docs/final-presentation.html) |
-
-### GitHub Pages setup
-
-1. Upload this `README.md`, the `.nojekyll` file, and the complete `docs` folder to the root of your GitHub repository.
-2. Open the repository on GitHub and select **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select your default branch—usually `main`—and choose `/(root)`. Click **Save**. The HTML files remain inside the repository's `docs` folder, which is why each public URL contains `/docs/`.
-5. Wait a few minutes for GitHub Pages to publish the site.
-6. In this README, use **Ctrl+H** and replace:
-   - `YOUR-GITHUB-USERNAME` with your GitHub username.
-   - `YOUR-REPOSITORY` with the exact repository name.
-7. Commit the updated README. The four **Open** links above will then launch the live, interactive versions.
-
-> GitHub does not run an HTML file inside a README page. The README can show a link or preview image, while GitHub Pages runs the actual HTML and keeps its interactive features working.
+| **Dashboard Presentation** | A presentation-style walkthrough of the Project 6 dashboard findings. | [▶ Open Presentation](https://slcha25.github.io/E-commerce-Data-Analysis-Strategy/Project%206_bg_dashboard_v2.html) |
+| **Strategy Report** | Read the complete cross-platform analysis, limitations, insights, and recommendations. | [▶ Open Strategy Report](https://slcha25.github.io/E-commerce-Data-Analysis-Strategy/Project%206_bg_strategy_report_v2.html)  |
+| **Final Growth Strategy Presentation** | Navigate the final Project 7 presentation in a full-screen interactive format. | [▶ Open Final Presentation](https://slcha25.github.io/E-commerce-Data-Analysis-Strategy/Project%207_Final%20Presentation.html) |
 
 ---
 
