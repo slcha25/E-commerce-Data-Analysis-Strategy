@@ -15,7 +15,7 @@ I came into this program as a former Math, Economics, and Accounting teacher wit
 
 |             |                                                                             |
 | ----------- | --------------------------------------------------------------------------- |
-| **Name   ** | Sok Leng Chan                                                               |
+| **Name**    | Sok Leng Chan                                                               |
 | **Program** | E-commerce-Data-Analysis-Strategy · Extern                                  |
 | **Phase**   | April - June 2026                                                           |
 | **GitHub**  | [slcha25/E-commerece-Data-Analysis-Strategy](https://github.com/slcha25/E-commerce-Data-Analysis-Strategy) |
