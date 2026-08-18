@@ -7,6 +7,20 @@
 ![Stack](https://img.shields.io/badge/Stack-Google%20Analytics%20%7C%20Google%20Ads%20%7C%20Meta%20Ads%20%7C%20Shopify%20%7C%20Claude%20AI-informational?style=flat-square)
 ![Data](https://img.shields.io/badge/Data-Real%20%26%20Anonymized-lightgrey?style=flat-square)
 
+## 👋 Welcome
+
+This is my E-Commerce Data Analysis & Marketing Strategy externship repository at Extern. Every week I push the work I build in class — scripts, lab outputs, notes, and documentation — so there is a living record of how far I have come.
+
+I came into this program as a former Math, Economics, and Accounting teacher with a full-stack development and data analysis background. Cybersecurity and data analyis is my current career path. This repository is proof of my data analysis ,it is possible to start from zero and build something real, week by week.
+
+|             |                                                                             |
+| ----------- | --------------------------------------------------------------------------- |
+| **Name   ** | Sok Leng Chan                                                               |
+| **Program** | E-commerce-Data-Analysis-Strategy · Extern                                  |
+| **Phase**   | April - June 2026                                                           |
+| **GitHub**  | [slcha25/E-commerece-Data-Analysis-Strategy](https://github.com/slcha25/E-commerce-Data-Analysis-Strategy) |
+
+
 ## 💭 Learning Reflection
 
 >One of my biggest takeaways from this project was learning how data from Google Ads, Meta Ads, Google Analytics, and Shopify connects to tell one complete customer story. Instead of looking at each platform separately, I learned how to follow the customer journey—from first discovering a product, to visiting the website, engaging >with the content, adding an item to the cart, and deciding whether to complete the purchase.
