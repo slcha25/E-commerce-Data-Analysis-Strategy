@@ -7,11 +7,14 @@
 ![Stack](https://img.shields.io/badge/Stack-Google%20Analytics%20%7C%20Google%20Ads%20%7C%20Meta%20Ads%20%7C%20Shopify%20%7C%20Claude%20AI-informational?style=flat-square)
 ![Data](https://img.shields.io/badge/Data-Real%20%26%20Anonymized-lightgrey?style=flat-square)
 
-> *"Getting traffic is easy; turning it into sales is the hard part."*
+## 💭 Learning Reflection
 
-> Seven projects, four data platforms, one real online board game company's sales funnel — pulled apart, diagnosed, and put back together into a growth strategy.
+>One of my biggest takeaways from this project was learning how data from Google Ads, Meta Ads, Google Analytics, and Shopify connects to tell one complete customer story. Instead of looking at each platform separately, I learned how to follow the customer journey—from first discovering a product, to visiting the website, engaging >with the content, adding an item to the cart, and deciding whether to complete the purchase.
 
-> **A note on confidentiality**: This externship used a real company's live operational data under an NDA. Per the externship's terms, I can share the analysis, methodology, and findings — but not the client's name or any identifying details. Throughout this README, the company is referred to only as **"the Client."**
+>This project also helped me understand that marketing is much more than running advertisements. Every step—from building awareness to designing an engaging website and reducing checkout friction—is part of the overall marketing strategy. I learned how to use historical performance data to make more informed recommendations about future >advertising budgets, while also recognizing the limits of the available data.
+
+>Finally, I gained hands-on experience using AI to organize and connect information from multiple platforms. AI helped me transform complex data into a clear, visually engaging dashboard, but I also learned that human judgment is still essential for checking the results, identifying data limitations, and turning the findings into >practical business recommendations.
+
 
 ---
 
@@ -199,6 +202,7 @@ Online Board Game Retailer /
 - Wrote action-oriented slide titles, backed each claim with the underlying chart or data point, and used AI to tighten wording and simplify complex points
 - Practiced explaining the story out loud, as if presenting to the Client's actual marketing team
 - **Outcome**: a business-ready growth strategy presentation connecting ad spend, analytics, and Shopify sales data into 2–3 realistic, measurable recommendations
+- *Deliverable**: [Final presentation](https://slcha25.github.io/E-commerce-Data-Analysis-Strategy/Project%207_Final%20Presentation.html)
 
 ---
 
